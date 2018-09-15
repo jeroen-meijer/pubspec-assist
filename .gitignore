@@ -2,5 +2,4 @@ out
 node_modules
 .vscode-test/
 *.vsix
-src/test/results/results.yaml
-src/test/results/targets.yaml
+src/test/results/
