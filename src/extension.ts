@@ -140,6 +140,10 @@ export function addDependencyByText(
         "  " + newPackage.generateDependencyString() + "\r\n" + lines[i];
       break;
     }
+    if (i === lines.length - 1) {
+      lines.push("  " + newPackage.generateDependencyString());
+      break;
+    }
   }
 
   pubspecString = lines
