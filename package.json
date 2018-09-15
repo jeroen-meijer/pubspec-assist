@@ -1,0 +1,76 @@
+{
+  "name": "pubspec-assist",
+  "displayName": "Pubspec Assist",
+  "description": "Easily add dependencies to your Dart / Flutter project.",
+  "version": "0.0.2",
+  "publisher": "jeroen-meijer",
+  "author": {
+    "name": "Jeroen Meijer",
+    "url": "http://ikmaak.software/",
+    "email": "jeroenfkmeijer@gmail.com"
+  },
+  "engines": {
+    "vscode": "^1.27.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "pubspec",
+    "dart",
+    "flutter",
+    "dependency",
+    "dependencies",
+    "assist",
+    "assistant",
+    "package",
+    "adder"
+  ],
+  "icon": "images/logo.png",
+  "galleryBanner": {
+    "color": "#282c34",
+    "theme": "dark"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jeroen-meijer/pubspec-assist"
+  },
+  "homepage": "https://github.com/jeroen-meijer/pubspec-assist/blob/master/README.md",
+  "bugs": {
+    "url": "https://github.com/jeroen-meijer/pubspec-assist/issues",
+    "email": "jeroenfkmeijer@gmail.com"
+  },
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./out/extension",
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.openInput",
+        "title": "Add dependency",
+        "category": "Pubspec Assist"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "npm run compile && node ./node_modules/vscode/bin/test"
+  },
+  "devDependencies": {
+    "typescript": "^2.6.1",
+    "vscode": "^1.1.21",
+    "tslint": "^5.8.0",
+    "@types/node": "^8.10.25",
+    "@types/mocha": "^2.2.42"
+  },
+  "dependencies": {
+    "@types/js-yaml": "^3.11.2",
+    "fuse-js-latest": "^3.1.0",
+    "js-yaml": "^3.12.0",
+    "typed-rest-client": "^1.0.9"
+  }
+}
