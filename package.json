@@ -2,7 +2,7 @@
   "name": "pubspec-assist",
   "displayName": "Pubspec Assist",
   "description": "Easily add dependencies to your Dart / Flutter project.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "jeroen-meijer",
   "author": {
     "name": "Jeroen Meijer",
