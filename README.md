@@ -1,4 +1,4 @@
-# <img style="float: left; height: 35px; width: 35px; padding: 0 10px 0 5px" src="https://image.ibb.co/jYSvbe/logo.png"> Pubspec Assist (Beta)
+# <img style="float: left; width: 35px; padding: 0 10px 0 5px" src="https://github.com/jeroen-meijer/pubspec-assist/blob/master/images/logo_35.png?raw=true"> Pubspec Assist (Beta)
 ## Easily add dependencies to your Dart / Flutter project.
 
 ---
