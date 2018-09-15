@@ -1,63 +1,44 @@
-# pubspec-assist README
+# <img style="float: left; height: 35px; width: 35px; padding: 0 10px 0 5px" src="https://image.ibb.co/jYSvbe/logo.png"> Pubspec Assist (Beta)
+## Easily add dependencies to your Dart / Flutter project.
 
-Pubspec-assist readme.
+---
+
+Pubspec Assist is a Visual Studio Code extension that allows you to easily add dependencies to your [Dart](https://www.dartlang.org/) and [Flutter](https://www.flutter.io/) project's `pubspec.yaml`, all without leaving your editor.
+
+<img src="https://i.imgur.com/W2cGuPL.gif" style="width: 600px"/>
 
 ## Features
 
-Picture example.
+### Get the latest version for your packages.
 
-<!-- \!\[feature X\]\(images/feature-x.png\) -->
+**Pubspec Assist will get you the latest version of whatever package you are looking for** and puts it in your `pubspec.yaml` file while preserving comments and formats the file automatically.
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+### Never leave VS Code.
+
+**Forget going to the Dart Pub site to search for your packages and copy the dependency text.**<br/>
+You can look for and import packages directly from VS Code without ever switching windows.
+
+### Smart (Fuzzy) search.
+
+**Pubspec Assist is smart about finding what you're trying to search for.**<br>
+It gets you the most likely package you want, and will give you a selection to choose from otherwise and **sorts them by relevance**.
+
+ <img src="https://i.imgur.com/Mnlr0UK.gif" style="width: 560px" />
+
+---
 
 ## Requirements
 
-Requirements go here.
+- Visual Studio Code
+- A sense of relief after installation.
 
-## Extension Settings
+## Note to users
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-<!-- 
-For example:
+**Since Pubspec Assist is still in beta, you may encounter bugs when using it. However, you always have the option to revert the changes made, just by undoing the action** by hitting `Cmd+Z` or `Ctrl+Z`.
 
-This extension contributes the following settings:
-
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something -->
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
+If you have any bugs or feature requests to report, please send them my way [by email](mailto:jeroenfkmeijer@gmail.com?subject=Pubspec%20Assist%20Bug%2FFeature%20Request).
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-<!-- 
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!** -->
+### 0.1.0
+- Initial beta release.
