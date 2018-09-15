@@ -141,6 +141,9 @@ export function addDependencyByText(
       break;
     }
     if (i === lines.length - 1) {
+      if (!lines[i].includes("\r")) {
+        lines[i] = lines[i] + "\r";
+      }
       lines.push("  " + newPackage.generateDependencyString());
       break;
     }
