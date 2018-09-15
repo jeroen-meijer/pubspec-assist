@@ -5,6 +5,7 @@ import * as vscode from "vscode";
 import { PubAPI } from "./model/pubApi";
 import { PubPackage } from "./model/pubPackage";
 import { safeLoad, safeDump } from "js-yaml";
+import { deprecate } from "util";
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -14,7 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
   let disposable = vscode.commands.registerCommand(
     "extension.openInput",
     async () => {
-      if (!pubspecFileIsOpen()) {
+      if (!vscode.window.activeTextEditor || !pubspecFileIsOpen()) {
         vscode.window.showErrorMessage(
           "Pubspec Assist: pubspec file not opened."
         );
@@ -50,7 +51,9 @@ export function activate(context: vscode.ExtensionContext) {
         return;
       }
 
-      const gettingPackageMessage = setMessage(`Getting info for package '${chosenPackageString}'...`);
+      const gettingPackageMessage = setMessage(
+        `Getting info for package '${chosenPackageString}'...`
+      );
       const chosenPackageResponse = await api.getPackage(chosenPackageString);
       gettingPackageMessage.dispose();
 
@@ -62,6 +65,7 @@ export function activate(context: vscode.ExtensionContext) {
       const chosenPackage = chosenPackageResponse.result;
 
       try {
+        formatDocument();
         const pubspecString = vscode.window.activeTextEditor.document.getText();
         const originalLines = pubspecString.split("\n");
         const newPubspecString = addDependencyByText(
@@ -88,7 +92,7 @@ export function activate(context: vscode.ExtensionContext) {
           }).`
         );
       } catch (error) {
-        console.log("error ", error);
+        console.log("Pubspec Assist: encountered error.", error);
       }
     }
   );
@@ -98,10 +102,10 @@ export function activate(context: vscode.ExtensionContext) {
 
 // this method is called when your extension is deactivated
 export function deactivate(): void {
-  console.log("Deactivate!!!");
+  console.log("Pubspec Assist: Deactivated.");
 }
 
-function pubspecFileIsOpen() {
+export function pubspecFileIsOpen() {
   return (
     vscode.window.activeTextEditor &&
     (vscode.window.activeTextEditor.document.fileName.endsWith(
@@ -111,14 +115,11 @@ function pubspecFileIsOpen() {
   );
 }
 
-function addDependencyByText(
+export function addDependencyByText(
   pubspecString: string,
   newPackage: PubPackage
 ): string {
-  console.log("addDependencyByText");
-
-  let lines = pubspecString
-    .split("\n");
+  let lines = pubspecString.split("\n");
 
   let dependencyLineIndex = lines.findIndex(
     line => line.trim() === "dependencies:"
@@ -135,7 +136,8 @@ function addDependencyByText(
 
   for (let i = dependencyLineIndex + 1; i < lines.length; i++) {
     if (!lines[i].startsWith(" ") && !lines[i].trim().startsWith("#")) {
-      lines[i] = "  " + newPackage.generateDependencyString() + "\n" + lines[i];
+      lines[i] =
+        "  " + newPackage.generateDependencyString() + "\r\n" + lines[i];
       break;
     }
   }
@@ -147,17 +149,17 @@ function addDependencyByText(
     .join("\n")
     .trim();
 
-  console.log(pubspecString);
-
   return pubspecString;
 }
 
-function addDependencyByObject(
+deprecate(
+  addDependencyByObject,
+  "Currently using `addDependenctByText` instead."
+);
+export function addDependencyByObject(
   pubspecString: string,
   newPackage: PubPackage
 ): string {
-  console.log("addDependencyByObject");
-
   let pubspec = safeLoad(pubspecString);
 
   if (!pubspec) {
@@ -170,33 +172,37 @@ function addDependencyByObject(
 
   pubspec.dependencies[newPackage.name] = `^${newPackage.latestVersion}`;
 
-  console.log(pubspec);
-
   return safeDump(pubspec);
 }
 
-function askPackageName(): Thenable<string | undefined> {
+export function askPackageName(): Thenable<string | undefined> {
   return vscode.window.showInputBox({
     prompt: "Enter the package name.",
     placeHolder: `Package name (cloud_firestore, get_it, ...)`
   });
 }
 
-function setMessage(message: string): vscode.Disposable {
-  return vscode.window.setStatusBarMessage(`$(pencil) Pubspec Assists: ${message}`);
+export function setMessage(message: string): vscode.Disposable {
+  return vscode.window.setStatusBarMessage(
+    `$(pencil) Pubspec Assists: ${message}`
+  );
 }
 
-function showError(message: string): Thenable<string | undefined> {
+export function showError(message: string): Thenable<string | undefined> {
   return vscode.window.showErrorMessage(`Pubspec Assist: ${message}`);
 }
 
-function showInfo(message: string): Thenable<string | undefined> {
+export function showInfo(message: string): Thenable<string | undefined> {
   return vscode.window.showInformationMessage(`Pubspec Assist: ${message}`);
 }
 
-function selectFrom(options: string[]): Thenable<string | undefined> {
+export function selectFrom(options: string[]): Thenable<string | undefined> {
   return vscode.window.showQuickPick(options, {
     canPickMany: false,
     matchOnDescription: true
   });
+}
+
+export function formatDocument() {
+  vscode.commands.executeCommand("editor.action.formatDocument");
 }

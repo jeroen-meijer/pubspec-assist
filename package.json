@@ -16,15 +16,11 @@
     "Other"
   ],
   "keywords": [
-    "pubspec",
+    "pubspec assist",
     "dart",
     "flutter",
     "dependency",
-    "dependencies",
-    "assist",
-    "assistant",
-    "package",
-    "adder"
+    "package"
   ],
   "icon": "images/logo.png",
   "galleryBanner": {
