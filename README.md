@@ -7,6 +7,9 @@ Pubspec Assist is a Visual Studio Code extension that allows you to easily add d
 
 <img src="https://i.imgur.com/W2cGuPL.gif" style="width: 600px"/>
 
+## Download
+[Download the latest version here.](https://marketplace.visualstudio.com/items?itemName=jeroen-meijer.pubspec-assist)
+
 ## Features
 
 ### Get the latest version for your packages.
