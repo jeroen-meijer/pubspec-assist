@@ -5,6 +5,7 @@ import { PubPackage } from "./pubPackage";
 import * as Fuse from "fuse-js-latest";
 import { escapeHtml } from "../escapeHtml";
 import { PubPackageSearch } from "./pubPackageSearch";
+import * as vscode from "vscode";
 
 export enum ResponseStatus {
   SUCCESS = "SUCCESS",
@@ -78,7 +79,7 @@ export class PubAPI {
     var fuseOptions = {
       shouldSort: true,
       includeScore: true,
-      threshold: 1.0,
+      threshold: 0.5,
       location: 0,
       distance: 100,
       maxPatternLength: 32,
@@ -106,7 +107,10 @@ export class PubAPI {
       element => element.score <= singleReturnThreshold
     );
 
-    if (significantResults.length === 1) {
+    if (
+      significantResults.length === 1 &&
+      vscode.workspace.getConfiguration().get("pubspec-assist.autoAddPackage")
+    ) {
       return {
         status: ResponseStatus.SUCCESS,
         result: new PubPackageSearch([significantResults[0].item.package])

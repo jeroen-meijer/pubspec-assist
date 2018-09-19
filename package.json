@@ -2,7 +2,7 @@
   "name": "pubspec-assist",
   "displayName": "Pubspec Assist",
   "description": "Easily add dependencies to your Dart / Flutter project.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "jeroen-meijer",
   "author": {
     "name": "Jeroen Meijer",
@@ -43,9 +43,22 @@
   "contributes": {
     "commands": [
       {
-        "command": "extension.openInput",
+        "command": "pubspec-assist.openInput",
         "title": "Add dependency",
         "category": "Pubspec Assist"
+      }
+    ],
+    "configuration": [
+      {
+        "type": "object",
+        "title": "Pubspec Assist configuration",
+        "properties": {
+          "pubspec-assist.autoAddPackage": {
+            "type": "boolean",
+            "default": true,
+            "description": "If a package with a very close match to your search is found, add it to the pubspec file automatically."
+          }
+        }
       }
     ]
   },

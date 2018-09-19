@@ -22,7 +22,7 @@ suite("Extension: Dependency Adding Tests", function() {
       const result: string = addDependencyByText(
         pubspecMock.source,
         packageMock
-      );
+      ).result;
 
       writeLog(
         "targets.yaml",

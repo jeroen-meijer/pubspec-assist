@@ -40,8 +40,3 @@ It gets you the most likely package you want, and will give you a selection to c
 **Since Pubspec Assist is still in beta, you may encounter bugs when using it. However, you always have the option to revert the changes made, just by undoing the action** by hitting `Cmd+Z` or `Ctrl+Z`.
 
 If you have any bugs or feature requests to report, please send them my way [by email](mailto:jeroenfkmeijer@gmail.com?subject=Pubspec%20Assist%20Bug%2FFeature%20Request).
-
-## Release Notes
-
-### 0.1.0
-- Initial beta release.

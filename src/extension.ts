@@ -1,24 +1,24 @@
 "use strict";
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
+
 import * as vscode from "vscode";
 import { PubAPI } from "./model/pubApi";
 import { PubPackage } from "./model/pubPackage";
 import { safeLoad, safeDump } from "js-yaml";
 import { deprecate } from "util";
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
+export enum InsertionMethod {
+  ADD = "Added",
+  REPLACE = "Replaced"
+}
+
 export function activate(context: vscode.ExtensionContext) {
   const api: PubAPI = new PubAPI();
 
   let disposable = vscode.commands.registerCommand(
-    "extension.openInput",
+    "pubspec-assist.openInput",
     async () => {
       if (!vscode.window.activeTextEditor || !pubspecFileIsOpen()) {
-        vscode.window.showErrorMessage(
-          "Pubspec Assist: pubspec file not opened."
-        );
+        showError("Pubspec Assist: pubspec file not opened.");
         return;
       }
 
@@ -68,7 +68,7 @@ export function activate(context: vscode.ExtensionContext) {
         formatDocument();
         const pubspecString = vscode.window.activeTextEditor.document.getText();
         const originalLines = pubspecString.split("\n");
-        const newPubspecString = addDependencyByText(
+        const modifiedPubspec = addDependencyByText(
           pubspecString,
           chosenPackage
         );
@@ -82,12 +82,12 @@ export function activate(context: vscode.ExtensionContext) {
                 originalLines[originalLines.length - 1].length
               )
             ),
-            newPubspecString
+            modifiedPubspec.result
           );
         });
 
         showInfo(
-          `Added '${chosenPackage.name}' (version ${
+          `${modifiedPubspec.insertionMethod.toString()} '${chosenPackage.name}' (version ${
             chosenPackage.latestVersion
           }).`
         );
@@ -118,7 +118,9 @@ export function pubspecFileIsOpen() {
 export function addDependencyByText(
   pubspecString: string,
   newPackage: PubPackage
-): string {
+): {insertionMethod: InsertionMethod, result: string} {
+  let insertionMethod = InsertionMethod.ADD;
+
   let lines = pubspecString.split("\n");
 
   let dependencyLineIndex = lines.findIndex(
@@ -134,18 +136,37 @@ export function addDependencyByText(
     lines.push("");
   }
 
-  for (let i = dependencyLineIndex + 1; i < lines.length; i++) {
-    if (!lines[i].startsWith(" ") && !lines[i].trim().startsWith("#")) {
-      lines[i] =
-        "  " + newPackage.generateDependencyString() + "\r\n" + lines[i];
-      break;
+  const existingPackageLineIndex = lines.findIndex(line =>
+    line.includes(newPackage.name)
+  );
+  if (existingPackageLineIndex !== -1) {
+    const originalLine = lines[existingPackageLineIndex];
+
+    lines[existingPackageLineIndex] =
+      "  " + newPackage.generateDependencyString();
+
+    if (originalLine.includes("\r")) {
+      lines[existingPackageLineIndex] += "\r";
     }
-    if (i === lines.length - 1) {
-      if (!lines[i].includes("\r")) {
-        lines[i] = lines[i] + "\r";
+    if (originalLine.includes("\n")) {
+      lines[existingPackageLineIndex] += "\n";
+    }
+
+    insertionMethod = InsertionMethod.REPLACE;
+  } else {
+    for (let i = dependencyLineIndex + 1; i < lines.length; i++) {
+      if (!lines[i].startsWith(" ") && !lines[i].trim().startsWith("#")) {
+        lines[i] =
+          "  " + newPackage.generateDependencyString() + "\r\n" + lines[i];
+        break;
       }
-      lines.push("  " + newPackage.generateDependencyString());
-      break;
+      if (i === lines.length - 1) {
+        if (!lines[i].includes("\r")) {
+          lines[i] = lines[i] + "\r";
+        }
+        lines.push("  " + newPackage.generateDependencyString());
+        break;
+      }
     }
   }
 
@@ -156,7 +177,7 @@ export function addDependencyByText(
     .join("\n")
     .trim();
 
-  return pubspecString;
+  return {insertionMethod: insertionMethod, result: pubspecString};
 }
 
 deprecate(
