@@ -1,9 +1,6 @@
 "use strict";
 
 import * as vscode from "vscode";
-import * as fs from "fs";
-
-const vscodeUri = require("vscode-uri");
 
 import { PubAPI } from "./model/pubApi";
 import { PubPackage } from "./model/pubPackage";
