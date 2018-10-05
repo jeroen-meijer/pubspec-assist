@@ -21,7 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
     "pubspec-assist.openInput",
     async () => {
       if (!vscode.window.activeTextEditor || !pubspecFileIsOpen()) {
-        showError(new PubError("Pubspec file not opened and none were found."));
+        showError(new PubError("Pubspec file not opened."));
         return;
       }
 
