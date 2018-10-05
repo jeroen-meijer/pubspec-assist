@@ -10,7 +10,7 @@ export function generateNewGitIssueUrl(content: GitIssueContent) {
 }
 
 export function generateNewGitIssueContent(error: Error): GitIssueContent {
-  let title: string = `Bug Report: ${(typeof error).toString()}`;
+  let title: string = `Bug Report: ${error.message}`;
 
   let body: string = `
 # Bug Report
