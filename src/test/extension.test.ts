@@ -1,9 +1,20 @@
 import * as assert from "assert";
+import * as fs from "fs";
+
+import { addDependencyByText } from "../extension";
 import { PubPackage } from "../model/pubPackage";
 import { PubspecMock } from "./pubspecMock";
 import { pubspecMockData } from "./pubspecMockData";
-import { addDependencyByText } from "../extension";
-import * as fs from "fs";
+import {
+  PubError,
+  PubApiSearchError,
+  OtherSearchInfo
+} from "../model/pubError";
+import {
+  GitIssueContent,
+  generateNewGitIssueUrl,
+  generateNewGitIssueContent
+} from "../helper/web";
 
 suite("Extension: Dependency Adding Tests", function() {
   const packageMock: PubPackage = new PubPackage("testpackage", "1.1.1", true);
@@ -42,6 +53,27 @@ suite("Extension: Dependency Adding Tests", function() {
 });
 
 suite("Pub API Tests", function() {});
+
+suite("Git Issue Tests", function() {
+  const testError: PubError = new PubApiSearchError(
+    OtherSearchInfo("Test info.")
+  );
+
+  let content: GitIssueContent;
+
+  test("Generate Git issue content with PubApiSearchError.", function() {
+    content = generateNewGitIssueContent(testError);
+  });
+
+  test("Generate Git issue url with content generated from PubApiSearchError.", function() {
+    if (!content) {
+      throw new Error(
+        "Content generator is broken, so generating a url is impossible."
+      );
+    }
+    generateNewGitIssueUrl(content);
+  });
+});
 
 function cleanLogFiles(): void {
   if (

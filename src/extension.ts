@@ -1,10 +1,16 @@
 "use strict";
 
 import * as vscode from "vscode";
+import * as fs from "fs";
+
+const vscodeUri = require("vscode-uri");
+
 import { PubAPI } from "./model/pubApi";
 import { PubPackage } from "./model/pubPackage";
 import { safeLoad, safeDump } from "js-yaml";
 import { deprecate } from "util";
+import { PubError } from "./model/pubError";
+import { showError, showCriticalError, showInfo } from "./helper/messaging";
 
 export enum InsertionMethod {
   ADD = "Added",
@@ -18,7 +24,7 @@ export function activate(context: vscode.ExtensionContext) {
     "pubspec-assist.openInput",
     async () => {
       if (!vscode.window.activeTextEditor || !pubspecFileIsOpen()) {
-        showError("Pubspec Assist: pubspec file not opened.");
+        showError(new PubError("Pubspec file not opened and none were found."));
         return;
       }
 
@@ -28,17 +34,18 @@ export function activate(context: vscode.ExtensionContext) {
       }
 
       const searchingMessage = setMessage(`Looking for package '${query}'...`);
-      let res = await api.smartSearchPackage(query);
+      let res;
+      try {
+        res = await api.smartSearchPackage(query);
+      } catch (error) {
+        showCriticalError(error);
+        return;
+      }
       const searchResult = res.result;
       searchingMessage.dispose();
 
-      if (!searchResult) {
-        showError("An error has occurred when searching Dart pub.");
-        return;
-      }
-
       if (searchResult.packages.length === 0) {
-        showError(`Package with name '${query}' not found.`);
+        showInfo(`Package with name '${query}' not found.`);
         return;
       }
 
@@ -54,13 +61,15 @@ export function activate(context: vscode.ExtensionContext) {
       const gettingPackageMessage = setMessage(
         `Getting info for package '${chosenPackageString}'...`
       );
-      const chosenPackageResponse = await api.getPackage(chosenPackageString);
-      gettingPackageMessage.dispose();
 
-      if (!chosenPackageResponse.result) {
-        showError("An error has occurred when searching Dart pub.");
+      let chosenPackageResponse;
+      try {
+        chosenPackageResponse = await api.getPackage(chosenPackageString);
+      } catch (error) {
+        showCriticalError(error);
         return;
       }
+      gettingPackageMessage.dispose();
 
       const chosenPackage = chosenPackageResponse.result;
 
@@ -87,12 +96,12 @@ export function activate(context: vscode.ExtensionContext) {
         });
 
         showInfo(
-          `${modifiedPubspec.insertionMethod.toString()} '${chosenPackage.name}' (version ${
-            chosenPackage.latestVersion
-          }).`
+          `${modifiedPubspec.insertionMethod.toString()} '${
+            chosenPackage.name
+          }' (version ${chosenPackage.latestVersion}).`
         );
       } catch (error) {
-        console.log("Pubspec Assist: encountered error.", error);
+        showCriticalError(error);
       }
     }
   );
@@ -118,7 +127,7 @@ export function pubspecFileIsOpen() {
 export function addDependencyByText(
   pubspecString: string,
   newPackage: PubPackage
-): {insertionMethod: InsertionMethod, result: string} {
+): { insertionMethod: InsertionMethod; result: string } {
   let insertionMethod = InsertionMethod.ADD;
 
   let lines = pubspecString.split("\n");
@@ -177,7 +186,7 @@ export function addDependencyByText(
     .join("\n")
     .trim();
 
-  return {insertionMethod: insertionMethod, result: pubspecString};
+  return { insertionMethod: insertionMethod, result: pubspecString };
 }
 
 deprecate(
@@ -214,14 +223,6 @@ export function setMessage(message: string): vscode.Disposable {
   return vscode.window.setStatusBarMessage(
     `$(pencil) Pubspec Assists: ${message}`
   );
-}
-
-export function showError(message: string): Thenable<string | undefined> {
-  return vscode.window.showErrorMessage(`Pubspec Assist: ${message}`);
-}
-
-export function showInfo(message: string): Thenable<string | undefined> {
-  return vscode.window.showInformationMessage(`Pubspec Assist: ${message}`);
 }
 
 export function selectFrom(options: string[]): Thenable<string | undefined> {

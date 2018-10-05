@@ -1,25 +1,36 @@
-import * as rm from "typed-rest-client/RestClient";
 import "./pubPackage";
-import { PubPage } from "./pubPage";
-import { PubPackage } from "./pubPackage";
-import * as Fuse from "fuse-js-latest";
-import { escapeHtml } from "../escapeHtml";
-import { PubPackageSearch } from "./pubPackageSearch";
+
 import * as vscode from "vscode";
+import * as rm from "typed-rest-client/RestClient";
+import * as Fuse from "fuse-js-latest";
+
+import { escapeHtml } from "../escapeHtml";
+import { PubPackage } from "./pubPackage";
+import { PubPackageSearch } from "./pubPackageSearch";
+import { PubPage } from "./pubPage";
+import {
+  PubApiSearchError,
+  PageSearchInfo,
+  PackageSearchInfo,
+  PubError
+} from "./pubError";
 
 export enum ResponseStatus {
   SUCCESS = "SUCCESS",
   FAILURE = "FAILURE"
 }
 
+// FIXME: Add PubResponse for FAILURE back in when necessary.
 export type PubResponse<T> = {
-  status: ResponseStatus;
-  result: T | null;
+  status: ResponseStatus.SUCCESS;
+  result: T;
 };
 
-const FailedResponse: PubResponse<null> = {
-  status: ResponseStatus.FAILURE,
-  result: null
+const SuccessResponse = <T>(result: T): PubResponse<T> => {
+  return {
+    status: ResponseStatus.SUCCESS,
+    result
+  };
 };
 
 export class PubAPI {
@@ -37,18 +48,17 @@ export class PubAPI {
 
   public async getPage(id: number = 1): Promise<PubResponse<PubPage>> {
     const response: any = await this.getPageJson(id);
-    if (response) {
-      let result = PubPage.fromJSON(response);
-      return { status: ResponseStatus.SUCCESS, result };
-    } else {
-      return FailedResponse;
-    }
+    let result = PubPage.fromJSON(response);
+    return SuccessResponse(result);
   }
 
   private async getPageJson(id: number = 1): Promise<any> {
     const res: rm.IRestResponse<any> = await this.restClient.get(
       this.generateUrl(`packages?page=${id}`)
     );
+    if (!res.result) {
+      throw new PubApiSearchError(PageSearchInfo(id));
+    }
     return res.result;
   }
 
@@ -60,15 +70,12 @@ export class PubAPI {
       const res: rm.IRestResponse<any> = await this.restClient.get(
         this.generateUrl(fullQuery)
       );
-      return {
-        status: ResponseStatus.SUCCESS,
-        result: PubPackageSearch.fromJSON(res.result)
-      };
+      if (!res.result) {
+        throw new PubApiSearchError(PackageSearchInfo(query));
+      }
+      return SuccessResponse(PubPackageSearch.fromJSON(res.result));
     } catch (e) {
-      return {
-        status: ResponseStatus.FAILURE,
-        result: null
-      };
+      throw new PubError(`Rest client error: ${e}`);
     }
   }
 
@@ -90,12 +97,8 @@ export class PubAPI {
     const response: PubResponse<PubPackageSearch> = await this.searchPackage(
       query
     );
-
     if (!response.result) {
-      return {
-        status: ResponseStatus.FAILURE,
-        result: null
-      };
+      throw new PubApiSearchError(PackageSearchInfo(query));
     }
 
     const searchResults: PubPackageSearch = response.result;
@@ -131,14 +134,11 @@ export class PubAPI {
         this.generateUrl(`packages/${name}`)
       );
       if (!res.result) {
-        return FailedResponse;
+        throw new PubApiSearchError(PackageSearchInfo(name));
       }
-      return {
-        status: ResponseStatus.SUCCESS,
-        result: PubPackage.fromJSON(res.result)
-      };
+      return SuccessResponse(PubPackage.fromJSON(res.result));
     } catch (e) {
-      return FailedResponse;
+      throw new PubError(`Rest client error: ${e}`);
     }
   }
 }
