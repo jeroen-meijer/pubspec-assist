@@ -9,7 +9,7 @@
 ## Steps to Reproduce
 
 <!--
-     Please tell ne exactly how to reproduce the problem you are running into.
+     Please tell me exactly how to reproduce the problem you are running into.
 -->
 
 1. ...

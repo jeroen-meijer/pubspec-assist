@@ -13,34 +13,34 @@ export function generateNewGitIssueContent(error: Error): GitIssueContent {
   let title: string = `Bug Report: ${(typeof error).toString()}`;
 
   let body: string = `
-  # Bug Report
+# Bug Report
 
-  ## Description
-  
-  <!-- If you want to give a brief description of the error, please do so here. -->
-  
-  ## Steps to Reproduce
-  
-  <!-- Please tell me exactly how to reproduce the problem you are running into. -->
-  
-  1. ...
-  2. ...
-  3. ...
-  
-  ## Exception Info
-  
-  **Type:** \`${(typeof error).toString()}\`
-  
-  **Name:** \`${error.name}\`
-  
-  **Message:** \`${error.message}\`
-  
-  **Stack:**
-  
-  \`\`\`
-  ${error.stack}
-  \`\`\`
-    `;
+## Description
+
+<!-- If you want to give a brief description of the error, please do so here. -->
+
+## Steps to Reproduce
+
+<!-- Please tell me exactly how to reproduce the problem you are running into. -->
+
+1. ...
+2. ...
+3. ...
+
+## Exception Info
+
+**Type:** \`${(typeof error).toString()}\`
+
+**Name:** \`${error.name}\`
+
+**Message:** \`${error.message}\`
+
+**Stack:**
+
+\`\`\`
+${error.stack}
+\`\`\`
+`;
 
   return { title, body };
 }

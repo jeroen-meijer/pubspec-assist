@@ -67,8 +67,8 @@ export class PubApiSearchError extends PubError {
   constructor(searchInfo: SearchInfo) {
     let message: string = `
     No response from Pub API call.\n
-    Search type: ${searchInfo.searchType.toString()}.\n
-    Details: ${searchInfo.details}`;
+    Search type: "${searchInfo.searchType.toString()}".\n
+    Details: "${searchInfo.details}".`;
     super(message);
     Object.setPrototypeOf(this, PubApiSearchError.prototype);
   }

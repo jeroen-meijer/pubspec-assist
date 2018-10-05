@@ -24,11 +24,10 @@ export function showError(error: Error, isCritical: boolean = false): void {
     vscode.window.showErrorMessage(message);
     return;
   }
-  message += `
-      Error occurred.\n
-      Type: "${error.name}"
-      Message: "${error.message}"
-      `;
+  message += `A critical error has occurred.\n
+    If this happens again, please report it.\n\n
+    
+    Error message: ${error.message}`;
 
   vscode.window
     .showErrorMessage(message, {}, ...errorOptions)
