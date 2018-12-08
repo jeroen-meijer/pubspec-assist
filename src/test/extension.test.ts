@@ -1,7 +1,7 @@
 import * as assert from "assert";
 import * as fs from "fs";
 
-import { addDependencyByText } from "../extension";
+import { addDependencyByText } from "../functions/openInput";
 import { pubspecMockData } from "./pubspecMockData";
 import { PubspecMockTestCase } from "./pubspecMockTestCase";
 import {
