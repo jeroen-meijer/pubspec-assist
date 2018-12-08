@@ -142,9 +142,17 @@ export function addDependencyByText(
     lines.push("");
   }
 
-  const existingPackageLineIndex = lines.findIndex(line =>
-    line.includes(newPackage.name)
-  );
+  const existingPackageLineIndex = lines.findIndex(line => {
+    if (!line.includes(":")) {
+      return false;
+    }
+
+    const sanitizedLine: string = line.trim();
+    const colonIndex: number = sanitizedLine.indexOf(":");
+    const potentialMatch = sanitizedLine.substring(0, colonIndex);
+
+    return potentialMatch.trim() === newPackage.name;
+  });
   if (existingPackageLineIndex !== -1) {
     const originalLine = lines[existingPackageLineIndex];
 

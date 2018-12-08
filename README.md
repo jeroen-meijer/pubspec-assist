@@ -48,6 +48,6 @@ Some features planned for the future in order of expected implementation.
 
 ## Note to users
 
-**Since Pubspec Assist is still in beta, you may encounter bugs when using it. However, you always have the option to revert the changes made, just by undoing the action** by hitting `Cmd+Z` or `Ctrl+Z`.
+**Since Pubspec Assist is still in beta, you may encounter bugs when using it. However, you can always revert the changes made, just by undoing the action** by hitting `Cmd+Z` or `Ctrl+Z`.
 
-If you have any bugs or feature requests to report, please send them my way [by email](mailto:jeroenfkmeijer@gmail.com?subject=Pubspec%20Assist%20Bug%2FFeature%20Request).
+If you have any bugs or feature requests to report, please check out the issues on the GitHub repository page or create a new one.

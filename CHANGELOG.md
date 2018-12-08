@@ -34,3 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated dependencies.
 
+## 0.3.2 - 2018-12-08
+
+### Changed
+
+- Fix bug where new imported packages would replace existing similarly named packages. (Mentioned in issues: #2)

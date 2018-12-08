@@ -2,9 +2,8 @@ import * as assert from "assert";
 import * as fs from "fs";
 
 import { addDependencyByText } from "../extension";
-import { PubPackage } from "../model/pubPackage";
-import { PubspecMock } from "./pubspecMock";
 import { pubspecMockData } from "./pubspecMockData";
+import { PubspecMockTestCase } from "./pubspecMockTestCase";
 import {
   PubError,
   PubApiSearchError,
@@ -17,38 +16,41 @@ import {
 } from "../helper/web";
 
 suite("Extension: Dependency Adding Tests", function() {
-  const packageMock: PubPackage = new PubPackage("testpackage", "1.1.1", true);
-  const pubspecMocks: PubspecMock[] = pubspecMockData["mocks"].map(
-    (item: any) => PubspecMock.fromJSON(item)
+  const testCases: PubspecMockTestCase[] = pubspecMockData.map((json: any) =>
+    PubspecMockTestCase.fromJSON(json)
   );
 
   cleanLogFiles();
 
-  for (let i = 0; i < pubspecMocks.length; i++) {
-    const pubspecMock = pubspecMocks[i];
+  for (let testCase of testCases) {
+    for (let pubspecMock of testCase.mocks) {
+      test(`'${testCase.pubPackage.name}' (${
+        testCase.pubPackage.latestVersion
+      }) -> '${pubspecMock.name}'`, function() {
+        const result: string = addDependencyByText(
+          pubspecMock.source,
+          testCase.pubPackage
+        ).result;
 
-    test(`'${packageMock.name}' (${packageMock.latestVersion}) -> '${
-      pubspecMock.name
-    }'`, function() {
-      const result: string = addDependencyByText(
-        pubspecMock.source,
-        packageMock
-      ).result;
+        writeLog(
+          "targets.yaml",
+          `${testCase.pubPackage.name} (${
+            testCase.pubPackage.latestVersion
+          }) - ${pubspecMock.name}:\t${JSON.stringify(pubspecMock.target)}`
+        );
+        writeLog(
+          "results.yaml",
+          `${testCase.pubPackage.name} (${
+            testCase.pubPackage.latestVersion
+          }) - ${pubspecMock.name}:\t${JSON.stringify(result)}`
+        );
 
-      writeLog(
-        "targets.yaml",
-        `${pubspecMock.name}:\t${JSON.stringify(pubspecMock.target)}`
-      );
-      writeLog(
-        "results.yaml",
-        `${pubspecMock.name}:\t${JSON.stringify(result)}`
-      );
-
-      assert(
-        JSON.stringify(result) === JSON.stringify(pubspecMock.target),
-        "Parsing source pubspec with 'addDependencyByText' method did not result in desired target value."
-      );
-    });
+        assert(
+          JSON.stringify(result) === JSON.stringify(pubspecMock.target),
+          "Parsing source pubspec with 'addDependencyByText' method did not result in desired target value."
+        );
+      });
+    }
   }
 });
 
