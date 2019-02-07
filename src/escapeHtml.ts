@@ -1,4 +1,4 @@
-var entityMap: any = {
+const entityMap: any = {
     "&": "&amp;",
     "<": "&lt;",
     ">": "&gt;",

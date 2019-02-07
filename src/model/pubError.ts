@@ -63,6 +63,15 @@ export class PubError extends Error {
   }
 }
 
+export class PubApiNotRespondingError extends PubError {
+  constructor() {
+    super(
+      "The Pub API is not responding.\nPlease check your internet connection or try again."
+    );
+    Object.setPrototypeOf(this, PubApiNotRespondingError.prototype);
+  }
+}
+
 export class PubApiSearchError extends PubError {
   constructor(searchInfo: SearchInfo) {
     let message: string = `
@@ -71,5 +80,17 @@ export class PubApiSearchError extends PubError {
     Details: "${searchInfo.details}".`;
     super(message);
     Object.setPrototypeOf(this, PubApiSearchError.prototype);
+  }
+}
+
+export function getRestApiError(error: Error): PubError {
+  if (
+    ["ENOTFOUND", "ETIMEDOUT"].some((errorDescription: string) =>
+      error.message.includes(errorDescription)
+    )
+  ) {
+    return new PubApiNotRespondingError();
+  } else {
+    return new PubError(`Rest client error: ${error}`);
   }
 }

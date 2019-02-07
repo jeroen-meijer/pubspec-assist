@@ -3,11 +3,13 @@
 import * as vscode from "vscode";
 
 import { showError, showCriticalError, showInfo } from "../helper/messaging";
-import { PubAPI } from "../model/pubApi";
+import { PubAPI, PubResponse } from "../model/pubApi";
 import { PubError } from "../model/pubError";
 import { PubPackage } from "../model/pubPackage";
 import { safeLoad, safeDump } from "js-yaml";
 import { deprecate } from "util";
+import { getValue } from "../helper/getValue";
+import { PubPackageSearch } from "../model/pubPackageSearch";
 
 export enum InsertionMethod {
   ADD = "Added",
@@ -27,13 +29,14 @@ export async function openInput(context: vscode.ExtensionContext) {
   }
 
   const searchingMessage = setMessage(`Looking for package '${query}'...`);
-  let res;
-  try {
-    res = await api.smartSearchPackage(query);
-  } catch (error) {
-    showCriticalError(error);
+  let res: PubResponse<PubPackageSearch> | undefined = await getValue(() =>
+    api.smartSearchPackage(query)
+  );
+
+  if (!res) {
     return;
   }
+
   const searchResult = res.result;
   searchingMessage.dispose();
 
@@ -55,13 +58,14 @@ export async function openInput(context: vscode.ExtensionContext) {
     `Getting info for package '${chosenPackageString}'...`
   );
 
-  let chosenPackageResponse;
-  try {
-    chosenPackageResponse = await api.getPackage(chosenPackageString);
-  } catch (error) {
-    showCriticalError(error);
+  let chosenPackageResponse:
+    | PubResponse<PubPackage>
+    | undefined = await getValue(() => api.getPackage(chosenPackageString));
+
+  if (!chosenPackageResponse) {
     return;
   }
+
   gettingPackageMessage.dispose();
 
   const chosenPackage = chosenPackageResponse.result;

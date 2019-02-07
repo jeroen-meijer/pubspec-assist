@@ -1,3 +1,1 @@
-import openInput from "./openInput";
-
-export { openInput };
+export { openInput } from "./openInput";

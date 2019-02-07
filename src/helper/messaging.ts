@@ -5,12 +5,19 @@ import { openNewGitIssueUrl } from "./web";
 
 enum ErrorOptionType {
   report = "Report issue",
-  ignore = "Ignore"
+  ignore = "Ignore",
+  tryAgain = "Try Again",
+  close = "Close"
 }
 
-let errorOptions = [
+let criticalErrorOptions: vscode.MessageItem[] = [
   { title: ErrorOptionType.report },
   { title: ErrorOptionType.ignore }
+];
+
+let retryableErrorOptions: vscode.MessageItem[] = [
+  { title: ErrorOptionType.tryAgain },
+  { title: ErrorOptionType.close }
 ];
 
 export function showInfo(message: string): Thenable<string | undefined> {
@@ -30,12 +37,27 @@ export function showError(error: Error, isCritical: boolean = false): void {
     Error message: ${error.message}`;
 
   vscode.window
-    .showErrorMessage(message, {}, ...errorOptions)
+    .showErrorMessage(message, {}, ...criticalErrorOptions)
     .then((option?: vscode.MessageItem) => {
       if (option) {
         handleErrorOptionResponse(option.title, error);
       }
     });
+}
+
+export async function showRetryableError(error: Error): Promise<boolean> {
+  let message: string = "Pubspec Assist: ";
+  message += `An error has occurred:\n${error.message}`;
+
+  const response:
+    | vscode.MessageItem
+    | undefined = await vscode.window.showWarningMessage(
+    message,
+    {},
+    ...retryableErrorOptions
+  );
+
+  return !!response && response.title === ErrorOptionType.tryAgain;
 }
 
 function handleErrorOptionResponse(option: string, error: Error) {
@@ -47,7 +69,6 @@ function handleErrorOptionResponse(option: string, error: Error) {
       break;
   }
 }
-
 export function showCriticalError(error: Error): void {
   showError(error, true);
 }

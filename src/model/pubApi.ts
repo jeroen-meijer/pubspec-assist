@@ -8,11 +8,11 @@ import { escapeHtml } from "../escapeHtml";
 import { PubPackage } from "./pubPackage";
 import { PubPackageSearch } from "./pubPackageSearch";
 import { PubPage } from "./pubPage";
+import { getRestApiError } from "./pubError";
 import {
   PubApiSearchError,
   PageSearchInfo,
-  PackageSearchInfo,
-  PubError
+  PackageSearchInfo
 } from "./pubError";
 
 export enum ResponseStatus {
@@ -75,7 +75,7 @@ export class PubAPI {
       }
       return SuccessResponse(PubPackageSearch.fromJSON(res.result));
     } catch (e) {
-      throw new PubError(`Rest client error: ${e}`);
+      throw getRestApiError(e);
     }
   }
 
@@ -138,7 +138,11 @@ export class PubAPI {
       }
       return SuccessResponse(PubPackage.fromJSON(res.result));
     } catch (e) {
-      throw new PubError(`Rest client error: ${e}`);
+      const error: Error = e;
+      console.log(
+        `--getPackage-- name: ${error.name}, message: ${error.message}`
+      );
+      throw getRestApiError(e);
     }
   }
 }
