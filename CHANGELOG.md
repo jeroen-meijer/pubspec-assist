@@ -39,8 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Fix bug where new imported packages would replace existing similarly named packages. (Mentioned in issues: #2)
-
-## 0.3.3 - 2019-02-07
+- 
+## 0.3.3 - 2019-02-09
 
 ### Changed
 
