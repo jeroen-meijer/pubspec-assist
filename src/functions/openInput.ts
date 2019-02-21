@@ -71,10 +71,13 @@ export async function openInput(context: vscode.ExtensionContext) {
   const chosenPackage = chosenPackageResponse.result;
 
   try {
+    const preserveNewline = checkNewlineAtEndOfFile();
     formatDocument();
-    const pubspecString = vscode.window.activeTextEditor.document.getText();
+    const pubspecString = getActiveEditorText();
     const originalLines = pubspecString.split("\n");
     const modifiedPubspec = addDependencyByText(pubspecString, chosenPackage);
+    const newPubspecString =
+      modifiedPubspec.result.concat(preserveNewline ? "\n" : "");
 
     vscode.window.activeTextEditor.edit(editBuilder => {
       editBuilder.replace(
@@ -85,7 +88,7 @@ export async function openInput(context: vscode.ExtensionContext) {
             originalLines[originalLines.length - 1].length
           )
         ),
-        modifiedPubspec.result
+        newPubspecString
       );
     });
 
@@ -97,6 +100,18 @@ export async function openInput(context: vscode.ExtensionContext) {
   } catch (error) {
     showCriticalError(error);
   }
+}
+
+export function getActiveEditorText(): string {
+  const activeEditor = vscode.window.activeTextEditor;
+  if (activeEditor) {
+    return activeEditor.document.getText();
+  }
+  return "";
+}
+
+export function checkNewlineAtEndOfFile(): boolean {
+  return getActiveEditorText().substr(-1) === "\n";
 }
 
 export function pubspecFileIsOpen() {
