@@ -2,7 +2,7 @@
   "name": "pubspec-assist",
   "displayName": "Pubspec Assist",
   "description": "Easily add dependencies to your Dart / Flutter project.",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "publisher": "jeroen-meijer",
   "author": {
     "name": "Jeroen Meijer",
@@ -70,17 +70,17 @@
     "test": "npm run compile && node ./node_modules/vscode/bin/test"
   },
   "devDependencies": {
-    "typescript": "^2.6.1",
-    "vscode": "^1.1.22",
-    "tslint": "^5.8.0",
-    "@types/node": "^8.10.25",
-    "@types/mocha": "^2.2.42"
+    "@types/mocha": "^2.2.42",
+    "@types/node": "^8.10.49",
+    "tslint": "^5.18.0",
+    "typescript": "^2.9.2",
+    "vscode": "^1.1.34"
   },
   "dependencies": {
-    "@types/js-yaml": "^3.11.2",
+    "@types/js-yaml": "^3.12.1",
     "fuse-js-latest": "^3.1.0",
     "js-yaml": "^3.13.1",
     "openurl": "^1.1.1",
-    "typed-rest-client": "^1.0.9"
+    "typed-rest-client": "^1.5.0"
   }
 }
