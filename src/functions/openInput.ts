@@ -78,7 +78,6 @@ export async function openInput(context: vscode.ExtensionContext) {
     const preserveNewline = checkNewlineAtEndOfFile();
     formatDocument();
     const pubspecString = getPubspecText();
-    console.log(`pubspecString ${pubspecString}`);
     const originalLines = pubspecString.split("\n");
     const modifiedPubspec = addDependencyByText(pubspecString, chosenPackage);
     const newPubspecString = modifiedPubspec.result.concat(
