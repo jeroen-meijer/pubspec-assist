@@ -1,5 +1,6 @@
 "use strict";
 
+import * as fs from "fs";
 import * as vscode from "vscode";
 
 import { showError, showCriticalError, showInfo } from "../helper/messaging";
@@ -16,10 +17,13 @@ export enum InsertionMethod {
   REPLACE = "Replaced"
 }
 
+const pubspecFile = `${vscode.workspace.rootPath}/pubspec.yaml`;
 export async function openInput(context: vscode.ExtensionContext) {
   const api: PubAPI = new PubAPI();
-  if (!vscode.window.activeTextEditor || !pubspecFileIsOpen()) {
-    showError(new PubError("Pubspec file not opened."));
+
+  const isPubspecExists = fs.existsSync(pubspecFile);
+  if (!isPubspecExists) {
+    showError(new PubError("Pubspec file not found on workspace root."));
     return;
   }
 
@@ -73,24 +77,16 @@ export async function openInput(context: vscode.ExtensionContext) {
   try {
     const preserveNewline = checkNewlineAtEndOfFile();
     formatDocument();
-    const pubspecString = getActiveEditorText();
+    const pubspecString = getPubspecText();
+    console.log(`pubspecString ${pubspecString}`);
     const originalLines = pubspecString.split("\n");
     const modifiedPubspec = addDependencyByText(pubspecString, chosenPackage);
-    const newPubspecString =
-      modifiedPubspec.result.concat(preserveNewline ? "\n" : "");
+    const newPubspecString = modifiedPubspec.result.concat(
+      preserveNewline ? "\n" : ""
+    );
 
-    vscode.window.activeTextEditor.edit(editBuilder => {
-      editBuilder.replace(
-        new vscode.Range(
-          new vscode.Position(0, 0),
-          new vscode.Position(
-            originalLines.length - 1,
-            originalLines[originalLines.length - 1].length
-          )
-        ),
-        newPubspecString
-      );
-    });
+    // update pubspec file
+    fs.writeFileSync(pubspecFile, newPubspecString, "utf-8");
 
     showInfo(
       `${modifiedPubspec.insertionMethod.toString()} '${
@@ -102,16 +98,12 @@ export async function openInput(context: vscode.ExtensionContext) {
   }
 }
 
-export function getActiveEditorText(): string {
-  const activeEditor = vscode.window.activeTextEditor;
-  if (activeEditor) {
-    return activeEditor.document.getText();
-  }
-  return "";
+export function getPubspecText(): string {
+  return fs.readFileSync(pubspecFile, "utf8");
 }
 
 export function checkNewlineAtEndOfFile(): boolean {
-  return getActiveEditorText().substr(-1) === "\n";
+  return getPubspecText().substr(-1) === "\n";
 }
 
 export function pubspecFileIsOpen() {
