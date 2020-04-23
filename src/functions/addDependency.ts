@@ -86,7 +86,7 @@ export async function addDependency(dependencyType: DependencyType) {
 
   try {
     const preserveNewline = checkNewlineAtEndOfFile(context);
-    formatDocument();
+    formatIfOpened(context);
     const pubspecString = getPubspecText(context);
     const modifiedPubspec = addDependencyByText({
       context,
@@ -114,6 +114,8 @@ export async function addDependency(dependencyType: DependencyType) {
     } else {
       fs.writeFileSync(context.path, newPubspecString, "utf-8");
     }
+
+    formatIfOpened(context);
 
     showInfo(
       `${modifiedPubspec.insertionMethod.toString()} '${
@@ -286,8 +288,10 @@ function selectFrom(options: string[]): Thenable<string | undefined> {
   });
 }
 
-export function formatDocument() {
-  vscode.commands.executeCommand("editor.action.formatDocument");
+export function formatIfOpened(context: PubspecContext) {
+  if (context.openInEditor) {
+    vscode.commands.executeCommand("editor.action.formatDocument");
+  }
 }
 
 export default addDependency;

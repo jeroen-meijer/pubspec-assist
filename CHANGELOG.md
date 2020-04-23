@@ -73,3 +73,9 @@ First official release! 🎉
 ### Changed
 
 - Improved and updated README.md
+
+## 1.0.2 - 2020-04-23
+
+### Fixed
+
+- Fixed bug where the opened file would be formatted even if the `pubspec.yaml` isn't opened.
