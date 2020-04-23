@@ -11,23 +11,33 @@ import { safeLoad, safeDump } from "js-yaml";
 import { deprecate } from "util";
 import { getValue } from "../helper/getValue";
 import { PubPackageSearch } from "../model/pubPackageSearch";
+import { DependencyType } from "../model/dependencyType";
+import { PubspecContext } from "../model/pubspecContext";
 
 export enum InsertionMethod {
   ADD = "Added",
-  REPLACE = "Replaced"
+  REPLACE = "Replaced",
 }
 
-const pubspecFile = `${vscode.workspace.rootPath}/pubspec.yaml`;
-export async function openInput(context: vscode.ExtensionContext) {
+export async function addDependency(dependencyType: DependencyType) {
   const api: PubAPI = new PubAPI();
 
-  const isPubspecExists = fs.existsSync(pubspecFile);
-  if (!isPubspecExists) {
-    showError(new PubError("Pubspec file not found on workspace root."));
+  const context: PubspecContext = {
+    ...getFileContext(),
+    dependencyType: dependencyType,
+  };
+
+  if (!context.openInEditor && !fs.existsSync(context.path)) {
+    showError(
+      new PubError(
+        "Pubspec file not found in workspace root. " +
+          "Open the pubspec file you would like to edit and try again."
+      )
+    );
     return;
   }
 
-  const query = await askPackageName();
+  const query = await askPackageName(context);
   if (!query) {
     return;
   }
@@ -75,17 +85,35 @@ export async function openInput(context: vscode.ExtensionContext) {
   const chosenPackage = chosenPackageResponse.result;
 
   try {
-    const preserveNewline = checkNewlineAtEndOfFile();
+    const preserveNewline = checkNewlineAtEndOfFile(context);
     formatDocument();
-    const pubspecString = getPubspecText();
-    const originalLines = pubspecString.split("\n");
-    const modifiedPubspec = addDependencyByText(pubspecString, chosenPackage);
+    const pubspecString = getPubspecText(context);
+    const modifiedPubspec = addDependencyByText({
+      context,
+      pubspecString,
+      newPackage: chosenPackage,
+    });
     const newPubspecString = modifiedPubspec.result.concat(
       preserveNewline ? "\n" : ""
     );
 
-    // update pubspec file
-    fs.writeFileSync(pubspecFile, newPubspecString, "utf-8");
+    if (context.openInEditor) {
+      const originalLines = pubspecString.split("\n");
+      vscode.window.activeTextEditor!.edit((editBuilder) => {
+        editBuilder.replace(
+          new vscode.Range(
+            new vscode.Position(0, 0),
+            new vscode.Position(
+              originalLines.length - 1,
+              originalLines[originalLines.length - 1].length
+            )
+          ),
+          newPubspecString
+        );
+      });
+    } else {
+      fs.writeFileSync(context.path, newPubspecString, "utf-8");
+    }
 
     showInfo(
       `${modifiedPubspec.insertionMethod.toString()} '${
@@ -97,38 +125,62 @@ export async function openInput(context: vscode.ExtensionContext) {
   }
 }
 
-export function getPubspecText(): string {
-  return fs.readFileSync(pubspecFile, "utf8");
+function getFileContext() {
+  const pubspecIsOpen = pubspecFileIsOpen();
+  const pubspecPath = pubspecIsOpen
+    ? vscode.window.activeTextEditor!.document.uri.fsPath
+    : `${vscode.workspace.rootPath}/pubspec.yaml`;
+
+  return {
+    openInEditor: pubspecIsOpen,
+    path: pubspecPath,
+  };
 }
 
-export function checkNewlineAtEndOfFile(): boolean {
-  return getPubspecText().substr(-1) === "\n";
+function getPubspecText(context: PubspecContext): string {
+  return context.openInEditor
+    ? vscode.window.activeTextEditor!.document.getText()
+    : fs.readFileSync(context.path, "utf8");
 }
 
-export function pubspecFileIsOpen() {
+function checkNewlineAtEndOfFile(context: PubspecContext): boolean {
+  return getPubspecText(context).substr(-1) === "\n";
+}
+
+function pubspecFileIsOpen() {
   return (
-    vscode.window.activeTextEditor &&
-    (vscode.window.activeTextEditor.document.fileName.endsWith(
-      "pubspec.yaml"
-    ) ||
-      vscode.window.activeTextEditor.document.fileName.endsWith("pubspec.yml"))
+    (vscode.window.activeTextEditor &&
+      (vscode.window.activeTextEditor.document.fileName.endsWith(
+        "pubspec.yaml"
+      ) ||
+        vscode.window.activeTextEditor.document.fileName.endsWith(
+          "pubspec.yml"
+        ))) ||
+    false
   );
 }
 
-export function addDependencyByText(
-  pubspecString: string,
-  newPackage: PubPackage
-): { insertionMethod: InsertionMethod; result: string } {
+export function addDependencyByText({
+  context,
+  pubspecString,
+  newPackage,
+}: {
+  context: PubspecContext;
+  pubspecString: string;
+  newPackage: PubPackage;
+}): { insertionMethod: InsertionMethod; result: string } {
   let insertionMethod = InsertionMethod.ADD;
 
   let lines = pubspecString.split("\n");
 
+  let dependencyTypeQuery = `${context.dependencyType}:`;
+
   let dependencyLineIndex = lines.findIndex(
-    line => line.trim() === "dependencies:"
+    (line) => line.trim() === dependencyTypeQuery
   );
 
   if (dependencyLineIndex === -1) {
-    lines.push("dependencies:");
+    lines.push(dependencyTypeQuery);
     dependencyLineIndex = lines.length - 1;
   }
 
@@ -136,7 +188,7 @@ export function addDependencyByText(
     lines.push("");
   }
 
-  const existingPackageLineIndex = lines.findIndex(line => {
+  const existingPackageLineIndex = lines.findIndex((line) => {
     if (!line.includes(":")) {
       return false;
     }
@@ -192,7 +244,7 @@ deprecate(
   addDependencyByObject,
   "Currently using `addDependenctByText` instead."
 );
-export function addDependencyByObject(
+function addDependencyByObject(
   pubspecString: string,
   newPackage: PubPackage
 ): string {
@@ -211,23 +263,26 @@ export function addDependencyByObject(
   return safeDump(pubspec);
 }
 
-export function askPackageName(): Thenable<string | undefined> {
+function askPackageName(context: PubspecContext): Thenable<string | undefined> {
   return vscode.window.showInputBox({
     prompt: "Enter the package name.",
-    placeHolder: `Package name (cloud_firestore, get_it, ...)`
+    placeHolder:
+      context.dependencyType === "dependencies"
+        ? "Package name (cloud_firestore, get_it, ...)"
+        : "Package name (build_runner, freezed, ...)",
   });
 }
 
-export function setMessage(message: string): vscode.Disposable {
+function setMessage(message: string): vscode.Disposable {
   return vscode.window.setStatusBarMessage(
     `$(pencil) Pubspec Assists: ${message}`
   );
 }
 
-export function selectFrom(options: string[]): Thenable<string | undefined> {
+function selectFrom(options: string[]): Thenable<string | undefined> {
   return vscode.window.showQuickPick(options, {
     canPickMany: false,
-    matchOnDescription: true
+    matchOnDescription: true,
   });
 }
 
@@ -235,4 +290,4 @@ export function formatDocument() {
   vscode.commands.executeCommand("editor.action.formatDocument");
 }
 
-export default openInput;
+export default addDependency;

@@ -7,17 +7,17 @@ enum ErrorOptionType {
   report = "Report issue",
   ignore = "Ignore",
   tryAgain = "Try Again",
-  close = "Close"
+  close = "Close",
 }
 
 let criticalErrorOptions: vscode.MessageItem[] = [
   { title: ErrorOptionType.report },
-  { title: ErrorOptionType.ignore }
+  { title: ErrorOptionType.ignore },
 ];
 
 let retryableErrorOptions: vscode.MessageItem[] = [
   { title: ErrorOptionType.tryAgain },
-  { title: ErrorOptionType.close }
+  { title: ErrorOptionType.close },
 ];
 
 export function showInfo(message: string): Thenable<string | undefined> {

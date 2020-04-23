@@ -11,7 +11,7 @@ export class PubPackageSearch {
 
   public static fromJSON(json: any): PubPackageSearch {
     return new PubPackageSearch(
-      (json["packages"] as any[]).map(element => element.package),
+      (json["packages"] as any[]).map((element) => element.package),
       json["next"],
       json
     );

@@ -52,3 +52,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Preserve newline characters at the end of the file if present before formatting. (Mentioned in issues: #8)
 - Refactor some methods for simplicity.
+
+## 1.0.0 - 2020-04-23
+
+First official release! 🎉
+
+### Added
+
+- Add dependencies to your pubspec without having the file open (thank you to [@mychaelgo](https://github.com/mychaelgo)!). (Merged from PR: #17)
+- Ability to add `dev_dependencies`.
+
+### Changed
+
+- Changed "Add dependency" to "Add/update dependency" to better represent actual behavior.
+- Improved and enforced formatting rules.
+- Upgrade dependency versions for security reasons (again).

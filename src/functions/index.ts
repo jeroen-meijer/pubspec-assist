@@ -1,1 +1,1 @@
-export { openInput } from "./openInput";
+export { addDependency } from "./addDependency";

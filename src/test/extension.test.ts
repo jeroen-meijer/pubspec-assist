@@ -1,21 +1,21 @@
 import * as assert from "assert";
 import * as fs from "fs";
 
-import { addDependencyByText } from "../functions/openInput";
+import { addDependencyByText } from "../functions/addDependency";
 import { pubspecMockData } from "./pubspecMockData";
 import { PubspecMockTestCase } from "./pubspecMockTestCase";
 import {
   PubError,
   PubApiSearchError,
-  OtherSearchInfo
+  OtherSearchInfo,
 } from "../model/pubError";
 import {
   GitIssueContent,
   generateNewGitIssueUrl,
-  generateNewGitIssueContent
+  generateNewGitIssueContent,
 } from "../helper/web";
 
-suite("Extension: Dependency Adding Tests", function() {
+suite("Extension: Dependency Adding Tests", function () {
   const testCases: PubspecMockTestCase[] = pubspecMockData.map((json: any) =>
     PubspecMockTestCase.fromJSON(json)
   );
@@ -24,13 +24,15 @@ suite("Extension: Dependency Adding Tests", function() {
 
   for (let testCase of testCases) {
     for (let pubspecMock of testCase.mocks) {
-      test(`'${testCase.pubPackage.name}' (${
-        testCase.pubPackage.latestVersion
-      }) -> '${pubspecMock.name}'`, function() {
-        const result: string = addDependencyByText(
-          pubspecMock.source,
-          testCase.pubPackage
-        ).result;
+      test(`'${testCase.pubPackage.name}' (${testCase.pubPackage.latestVersion}) -> '${pubspecMock.name}'`, function () {
+        const result: string = addDependencyByText({
+          context: {
+            openInEditor: true,
+            dependencyType: "dependencies",
+          },
+          pubspecString: pubspecMock.source,
+          newPackage: testCase.pubPackage,
+        }).result;
 
         writeLog(
           "targets.yaml",
@@ -54,20 +56,20 @@ suite("Extension: Dependency Adding Tests", function() {
   }
 });
 
-suite("Pub API Tests", function() {});
+suite("Pub API Tests", function () {});
 
-suite("Git Issue Tests", function() {
+suite("Git Issue Tests", function () {
   const testError: PubError = new PubApiSearchError(
     OtherSearchInfo("Test info.")
   );
 
   let content: GitIssueContent;
 
-  test("Generate Git issue content with PubApiSearchError.", function() {
+  test("Generate Git issue content with PubApiSearchError.", function () {
     content = generateNewGitIssueContent(testError);
   });
 
-  test("Generate Git issue url with content generated from PubApiSearchError.", function() {
+  test("Generate Git issue url with content generated from PubApiSearchError.", function () {
     if (!content) {
       throw new Error(
         "Content generator is broken, so generating a url is impossible."

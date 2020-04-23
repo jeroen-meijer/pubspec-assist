@@ -12,12 +12,12 @@ import { getRestApiError } from "./pubError";
 import {
   PubApiSearchError,
   PageSearchInfo,
-  PackageSearchInfo
+  PackageSearchInfo,
 } from "./pubError";
 
 export enum ResponseStatus {
   SUCCESS = "SUCCESS",
-  FAILURE = "FAILURE"
+  FAILURE = "FAILURE",
 }
 
 // FIXME: Add PubResponse for FAILURE back in when necessary.
@@ -29,7 +29,7 @@ export type PubResponse<T> = {
 const SuccessResponse = <T>(result: T): PubResponse<T> => {
   return {
     status: ResponseStatus.SUCCESS,
-    result
+    result,
   };
 };
 
@@ -91,7 +91,7 @@ export class PubAPI {
       distance: 100,
       maxPatternLength: 32,
       minMatchCharLength: 1,
-      keys: ["package"]
+      keys: ["package"],
     };
 
     const response: PubResponse<PubPackageSearch> = await this.searchPackage(
@@ -107,7 +107,7 @@ export class PubAPI {
     const rankedResult: any[] = fuse.search(query);
 
     const significantResults = rankedResult.filter(
-      element => element.score <= singleReturnThreshold
+      (element) => element.score <= singleReturnThreshold
     );
 
     if (
@@ -116,14 +116,14 @@ export class PubAPI {
     ) {
       return {
         status: ResponseStatus.SUCCESS,
-        result: new PubPackageSearch([significantResults[0].item.package])
+        result: new PubPackageSearch([significantResults[0].item.package]),
       };
     } else {
       return {
         status: ResponseStatus.SUCCESS,
         result: new PubPackageSearch(
-          rankedResult.map(element => element.item.package)
-        )
+          rankedResult.map((element) => element.item.package)
+        ),
       };
     }
   }
@@ -138,10 +138,6 @@ export class PubAPI {
       }
       return SuccessResponse(PubPackage.fromJSON(res.result));
     } catch (e) {
-      const error: Error = e;
-      console.log(
-        `--getPackage-- name: ${error.name}, message: ${error.message}`
-      );
       throw getRestApiError(e);
     }
   }

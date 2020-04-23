@@ -1,16 +1,17 @@
 {
   "name": "pubspec-assist",
   "displayName": "Pubspec Assist",
-  "description": "Easily add dependencies to your Dart / Flutter project.",
-  "version": "0.3.6",
+  "description": "Easily add and update dependencies to your Dart and Flutter project.",
+  "version": "1.0.0",
   "publisher": "jeroen-meijer",
   "author": {
     "name": "Jeroen Meijer",
-    "url": "http://ikmaak.software/",
+    "url": "https://jfk.dev/",
     "email": "jeroenfkmeijer@gmail.com"
   },
+  "license": "MIT",
   "engines": {
-    "vscode": "^1.27.0"
+    "vscode": "^1.32.0"
   },
   "categories": [
     "Other"
@@ -24,7 +25,7 @@
   ],
   "icon": "images/logo.png",
   "galleryBanner": {
-    "color": "#282c34",
+    "color": "#181a1f",
     "theme": "dark"
   },
   "repository": {
@@ -43,8 +44,13 @@
   "contributes": {
     "commands": [
       {
-        "command": "pubspec-assist.openInput",
-        "title": "Add dependency",
+        "command": "pubspec-assist.addDependency",
+        "title": "Add/update dependency",
+        "category": "Pubspec Assist"
+      },
+      {
+        "command": "pubspec-assist.addDevDependency",
+        "title": "Add/update dev dependency",
         "category": "Pubspec Assist"
       }
     ],
@@ -65,22 +71,29 @@
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
+    "lint": "tslint -p ./",
     "watch": "tsc -watch -p ./",
-    "postinstall": "node ./node_modules/vscode/bin/install",
-    "test": "npm run compile && node ./node_modules/vscode/bin/test"
+    "pretest": "npm run compile",
+    "test": "node ./out/test/index.js"
   },
   "devDependencies": {
-    "@types/mocha": "^2.2.42",
-    "@types/node": "^8.10.49",
-    "tslint": "^5.18.0",
-    "typescript": "^2.9.2",
-    "vscode": "^1.1.34"
+    "@types/glob": "^7.1.1",
+    "@types/js-yaml": "^3.12.3",
+    "@types/mocha": "^5.2.6",
+    "@types/node": "^12.12.0",
+    "@types/openurl": "^1.0.0",
+    "@types/vscode": "^1.32.0",
+    "glob": "^7.1.4",
+    "mocha": "^6.1.4",
+    "source-map-support": "^0.5.12",
+    "tslint": "^5.19.0",
+    "typescript": "^3.8.3",
+    "vscode-test": "^1.3.0"
   },
   "dependencies": {
-    "@types/js-yaml": "^3.12.1",
     "fuse-js-latest": "^3.1.0",
     "js-yaml": "^3.13.1",
     "openurl": "^1.1.1",
-    "typed-rest-client": "^1.5.0"
+    "typed-rest-client": "^1.7.3"
   }
 }

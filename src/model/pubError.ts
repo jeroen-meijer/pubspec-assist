@@ -2,7 +2,7 @@ enum SearchType {
   PACKAGE = "PACKAGE",
   QUERY = "QUERY",
   PAGE = "PAGE",
-  OTHER = "OTHER"
+  OTHER = "OTHER",
 }
 
 type SearchInfo =
@@ -31,28 +31,28 @@ export const QuerySearchInfo = (query: string): SearchInfo => {
   return {
     searchType: SearchType.QUERY,
     query,
-    details: `Query: ${query}`
+    details: `Query: ${query}`,
   };
 };
 export const PageSearchInfo = (pageNumber: number): SearchInfo => {
   return {
     searchType: SearchType.PAGE,
     pageNumber,
-    details: `Page number: ${pageNumber}`
+    details: `Page number: ${pageNumber}`,
   };
 };
 export const PackageSearchInfo = (name: string): SearchInfo => {
   return {
     searchType: SearchType.PACKAGE,
     name,
-    details: `Package name: ${name}`
+    details: `Package name: ${name}`,
   };
 };
 export const OtherSearchInfo = (info: string): SearchInfo => {
   return {
     searchType: SearchType.OTHER,
     info,
-    details: `Search info: ${info}`
+    details: `Search info: ${info}`,
   };
 };
 

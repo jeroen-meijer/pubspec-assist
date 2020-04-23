@@ -14,7 +14,7 @@ export class PubPage {
   public static fromJSON(json: any): PubPage {
     return new PubPage(
       json["next_url"],
-      (json["packages"] as Map<string, any>[]).map(element =>
+      (json["packages"] as Map<string, any>[]).map((element) =>
         PubPackage.fromJSON(element)
       ),
       json

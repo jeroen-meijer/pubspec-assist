@@ -1,11 +1,9 @@
-const openurl = require("openurl");
+import { open } from "openurl";
 
 export type GitIssueContent = { title: string; body: string };
 
 export function generateNewGitIssueUrl(content: GitIssueContent) {
-  const url: string = `https://github.com/jeroen-meijer/pubspec-assist/issues/new?title=${
-    content.title
-  }&body=${content.body}`;
+  const url: string = `https://github.com/jeroen-meijer/pubspec-assist/issues/new?title=${content.title}&body=${content.body}`;
   return url;
 }
 
@@ -46,5 +44,5 @@ ${error.stack}
 }
 
 export function openNewGitIssueUrl(error: Error) {
-  openurl.open(generateNewGitIssueUrl(generateNewGitIssueContent(error)));
+  open(generateNewGitIssueUrl(generateNewGitIssueContent(error)));
 }
