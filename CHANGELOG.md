@@ -67,3 +67,9 @@ First official release! 🎉
 - Changed "Add dependency" to "Add/update dependency" to better represent actual behavior.
 - Improved and enforced formatting rules.
 - Upgrade dependency versions for security reasons (again).
+
+## 1.0.1 - 2020-04-23
+
+### Changed
+
+- Improved and updated README.md
