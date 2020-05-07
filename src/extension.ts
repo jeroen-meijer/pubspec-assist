@@ -22,6 +22,4 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // this method is called when your extension is deactivated
-export function deactivate(): void {
-  console.debug("Pubspec Assist: Deactivated.");
-}
+export function deactivate(): void {}

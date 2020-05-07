@@ -13,6 +13,7 @@ import { getValue } from "../helper/getValue";
 import { PubPackageSearch } from "../model/pubPackageSearch";
 import { DependencyType } from "../model/dependencyType";
 import { PubspecContext } from "../model/pubspecContext";
+import { LabelIcon } from "../helper/labelIcon";
 
 export enum InsertionMethod {
   ADD = "Added",
@@ -42,7 +43,9 @@ export async function addDependency(dependencyType: DependencyType) {
     return;
   }
 
-  const searchingMessage = setMessage(`Looking for package '${query}'...`);
+  const searchingMessage = setMessage({
+    message: `Looking for package '${query}'...`,
+  });
   let res: PubResponse<PubPackageSearch> | undefined = await getValue(() =>
     api.smartSearchPackage(query)
   );
@@ -68,9 +71,9 @@ export async function addDependency(dependencyType: DependencyType) {
     return;
   }
 
-  const gettingPackageMessage = setMessage(
-    `Getting info for package '${chosenPackageString}'...`
-  );
+  const gettingPackageMessage = setMessage({
+    message: `Getting info for package '${chosenPackageString}'...`,
+  });
 
   let chosenPackageResponse:
     | PubResponse<PubPackage>
@@ -244,7 +247,7 @@ export function addDependencyByText({
 
 deprecate(
   addDependencyByObject,
-  "Currently using `addDependenctByText` instead."
+  "Currently using `addDependencyByText` instead."
 );
 function addDependencyByObject(
   pubspecString: string,
@@ -275,10 +278,14 @@ function askPackageName(context: PubspecContext): Thenable<string | undefined> {
   });
 }
 
-function setMessage(message: string): vscode.Disposable {
-  return vscode.window.setStatusBarMessage(
-    `$(pencil) Pubspec Assists: ${message}`
-  );
+function setMessage({
+  message,
+  labelIcon = "sync~spin",
+}: {
+  message: string;
+  labelIcon?: LabelIcon;
+}): vscode.Disposable {
+  return vscode.window.setStatusBarMessage(`$(${labelIcon}) ${message}`);
 }
 
 function selectFrom(options: string[]): Thenable<string | undefined> {

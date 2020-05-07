@@ -79,3 +79,10 @@ First official release! 🎉
 ### Fixed
 
 - Fixed bug where the opened file would be formatted even if the `pubspec.yaml` isn't opened.
+
+## 1.0.3 - 2020-05-08
+
+### Changed
+
+- Changed status bar message icon to spinning sync icon.
+- Removed console logs.
