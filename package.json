@@ -2,7 +2,7 @@
   "name": "pubspec-assist",
   "displayName": "Pubspec Assist",
   "description": "Easily add and update dependencies to your Dart and Flutter project.",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "publisher": "jeroen-meijer",
   "author": {
     "name": "Jeroen Meijer",
@@ -57,12 +57,22 @@
     "configuration": [
       {
         "type": "object",
-        "title": "Pubspec Assist configuration",
+        "title": "Pubspec Assist",
         "properties": {
           "pubspec-assist.autoAddPackage": {
             "type": "boolean",
             "default": true,
             "description": "If a package with a very close match to your search is found, add it to the pubspec file automatically."
+          },
+          "pubspec-assist.useCaretSyntax": {
+            "type": "boolean",
+            "default": true,
+            "description": "Put a caret in front of the dependency version (i.e.: \"^1.0.0\" instead of \"1.0.0\")."
+          },
+          "pubspec-assist.useLegacyParser": {
+            "type": "boolean",
+            "default": false,
+            "description": "Use the legacy YAML text parser. Deprecated, should usually be turned off."
           }
         }
       }
@@ -92,8 +102,8 @@
   },
   "dependencies": {
     "fuse-js-latest": "^3.1.0",
-    "js-yaml": "^3.13.1",
     "openurl": "^1.1.1",
-    "typed-rest-client": "^1.7.3"
+    "typed-rest-client": "^1.7.3",
+    "yaml": "^1.10.0"
   }
 }

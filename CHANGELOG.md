@@ -86,3 +86,14 @@ First official release! 🎉
 
 - Changed status bar message icon to spinning sync icon.
 - Removed console logs.
+
+## 2.0.0 - 2020-08-06
+
+### Changed
+
+- **BREAKING**: Replaced old "text parser" with a proper implementation that uses the `yaml` package.
+- Added option for using the legacy text parser.
+- Added option for disabling the caret (`^`) for dependencies.
+- Filtered `dart:...` packages from search results.
+- Improved and updated README.md
+- Upgrade dependency versions for security reasons (again again).

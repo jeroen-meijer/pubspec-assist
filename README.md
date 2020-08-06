@@ -6,6 +6,12 @@ Pubspec Assist is a Visual Studio Code extension that allows you to easily add d
 
 <img src="https://i.imgur.com/W2cGuPL.gif" style="width: 600px"/>
 
+## Usage
+
+Simply open the Command Palette (by default, `Ctrl+Shift+P` on Windows, `⌘+Shift+P` on Mac) and search for "Pubspec Assist".
+
+Then, choose any of the available options (see the video above).
+
 ## Download
 
 [Download the latest version here.](https://marketplace.visualstudio.com/items?itemName=jeroen-meijer.pubspec-assist)
@@ -14,11 +20,11 @@ Pubspec Assist is a Visual Studio Code extension that allows you to easily add d
 
 ### Get the latest version for your packages.
 
-**Pubspec Assist will get you the latest version of whatever package you are looking for** and puts it in your `pubspec.yaml` file while preserving comments and formats the file automatically. If you already have the package in your `pubspec.yaml`, Pubspec Assist automatically updates it to the latest version for you.
+**Pubspec Assist will get you the latest version of whatever package you are looking for** and puts it in your `pubspec.yaml` file while preserving comments and (most) empty lines and formats the file automatically. If you already have the package in your `pubspec.yaml`, Pubspec Assist automatically updates it to the latest version for you. Oh, and it also supports `dev_dependencies`!
 
 ### Never leave VS Code.
 
-**Forget going to the Dart Pub site to search for your packages and copy the dependency text.**<br/>
+**Forget going to the [pub.dev](https://pub.dev/) to search for your packages and copy the dependency text.**<br/>
 You can look for and import packages directly from VS Code without ever switching windows.
 
 ### Smart (Fuzzy) search.

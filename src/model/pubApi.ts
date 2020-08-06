@@ -1,6 +1,5 @@
 import "./pubPackage";
 
-import * as vscode from "vscode";
 import * as rm from "typed-rest-client/RestClient";
 import * as Fuse from "fuse-js-latest";
 
@@ -14,6 +13,7 @@ import {
   PageSearchInfo,
   PackageSearchInfo,
 } from "./pubError";
+import { getSettings } from "../helper/getSettings";
 
 export enum ResponseStatus {
   SUCCESS = "SUCCESS",
@@ -83,7 +83,7 @@ export class PubAPI {
     query: string,
     singleReturnThreshold: number = 0.1
   ): Promise<PubResponse<PubPackageSearch>> {
-    var fuseOptions = {
+    const fuseOptions = {
       shouldSort: true,
       includeScore: true,
       threshold: 0.5,
@@ -103,17 +103,15 @@ export class PubAPI {
 
     const searchResults: PubPackageSearch = response.result;
 
-    const fuse: Fuse = new Fuse(searchResults.json.packages, fuseOptions);
-    const rankedResult: any[] = fuse.search(query);
+    const fuse = new Fuse(searchResults.json.packages, fuseOptions);
+    const rankedResult = (fuse.search(query) as any[]).filter(
+      (element) => !element.item.package.startsWith("dart:")
+    );
 
     const significantResults = rankedResult.filter(
       (element) => element.score <= singleReturnThreshold
     );
-
-    if (
-      significantResults.length === 1 &&
-      vscode.workspace.getConfiguration().get("pubspec-assist.autoAddPackage")
-    ) {
+    if (significantResults.length === 1 && getSettings().autoAddPackage) {
       return {
         status: ResponseStatus.SUCCESS,
         result: new PubPackageSearch([significantResults[0].item.package]),
