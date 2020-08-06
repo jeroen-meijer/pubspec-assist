@@ -29,8 +29,4 @@ export class PubPackage {
 
     return false;
   }
-
-  public generateDependencyString() {
-    return `${this.name}: ^${this.latestVersion}`;
-  }
 }

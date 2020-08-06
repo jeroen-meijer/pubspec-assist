@@ -29,6 +29,11 @@ suite("Extension: Dependency Adding Tests", function () {
           context: {
             openInEditor: true,
             dependencyType: "dependencies",
+            settings: {
+              autoAddPackage: true,
+              useCaretSyntax: true,
+              useLegacyParser: false,
+            }
           },
           pubspecString: pubspecMock.source,
           newPackage: testCase.pubPackage,

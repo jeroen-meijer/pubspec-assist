@@ -4,16 +4,15 @@ import * as fs from "fs";
 import * as vscode from "vscode";
 
 import { showError, showCriticalError, showInfo } from "../helper/messaging";
-import { PubAPI, PubResponse } from "../model/pubApi";
+import { PubAPI } from "../model/pubApi";
 import { PubError } from "../model/pubError";
 import { PubPackage } from "../model/pubPackage";
-import { safeLoad, safeDump } from "js-yaml";
-import { deprecate } from "util";
 import { getValue } from "../helper/getValue";
-import { PubPackageSearch } from "../model/pubPackageSearch";
 import { DependencyType } from "../model/dependencyType";
 import { PubspecContext } from "../model/pubspecContext";
 import { LabelIcon } from "../helper/labelIcon";
+import { getSettings } from "../helper/getSettings";
+import * as YAML from "yaml";
 
 export enum InsertionMethod {
   ADD = "Added",
@@ -25,6 +24,7 @@ export async function addDependency(dependencyType: DependencyType) {
 
   const context: PubspecContext = {
     ...getFileContext(),
+    settings: getSettings(),
     dependencyType: dependencyType,
   };
 
@@ -46,9 +46,8 @@ export async function addDependency(dependencyType: DependencyType) {
   const searchingMessage = setMessage({
     message: `Looking for package '${query}'...`,
   });
-  let res: PubResponse<PubPackageSearch> | undefined = await getValue(() =>
-    api.smartSearchPackage(query)
-  );
+
+  const res = await getValue(() => api.smartSearchPackage(query));
 
   if (!res) {
     return;
@@ -71,13 +70,21 @@ export async function addDependency(dependencyType: DependencyType) {
     return;
   }
 
+  if (chosenPackageString.startsWith("dart:")) {
+    showInfo(
+      'You don\'t need to add a "dart:" package as a dependency; ' +
+        "they're preinstalled and can be imported directly."
+    );
+    return;
+  }
+
   const gettingPackageMessage = setMessage({
     message: `Getting info for package '${chosenPackageString}'...`,
   });
 
-  let chosenPackageResponse:
-    | PubResponse<PubPackage>
-    | undefined = await getValue(() => api.getPackage(chosenPackageString));
+  const chosenPackageResponse = await getValue(() =>
+    api.getPackage(chosenPackageString)
+  );
 
   if (!chosenPackageResponse) {
     return;
@@ -91,11 +98,17 @@ export async function addDependency(dependencyType: DependencyType) {
     const preserveNewline = checkNewlineAtEndOfFile(context);
     formatIfOpened(context);
     const pubspecString = getPubspecText(context);
-    const modifiedPubspec = addDependencyByText({
+
+    const parser = context.settings.useLegacyParser
+      ? addDependencyByText
+      : addDependencyByObject;
+
+    const modifiedPubspec = parser({
       context,
       pubspecString,
       newPackage: chosenPackage,
     });
+
     const newPubspecString = modifiedPubspec.result.concat(
       preserveNewline ? "\n" : ""
     );
@@ -193,6 +206,10 @@ export function addDependencyByText({
     lines.push("");
   }
 
+  const dependencyString = `${newPackage.name}: ${
+    context.settings.useCaretSyntax ? "^" : ""
+  }${newPackage.latestVersion}`;
+
   const existingPackageLineIndex = lines.findIndex((line) => {
     if (!line.includes(":")) {
       return false;
@@ -207,8 +224,7 @@ export function addDependencyByText({
   if (existingPackageLineIndex !== -1) {
     const originalLine = lines[existingPackageLineIndex];
 
-    lines[existingPackageLineIndex] =
-      "  " + newPackage.generateDependencyString();
+    lines[existingPackageLineIndex] = "  " + dependencyString;
 
     if (originalLine.includes("\r")) {
       lines[existingPackageLineIndex] += "\r";
@@ -221,15 +237,14 @@ export function addDependencyByText({
   } else {
     for (let i = dependencyLineIndex + 1; i < lines.length; i++) {
       if (!lines[i].startsWith(" ") && !lines[i].trim().startsWith("#")) {
-        lines[i] =
-          "  " + newPackage.generateDependencyString() + "\r\n" + lines[i];
+        lines[i] = "  " + dependencyString + "\r\n" + lines[i];
         break;
       }
       if (i === lines.length - 1) {
         if (!lines[i].includes("\r")) {
           lines[i] = lines[i] + "\r";
         }
-        lines.push("  " + newPackage.generateDependencyString());
+        lines.push("  " + dependencyString);
         break;
       }
     }
@@ -245,27 +260,35 @@ export function addDependencyByText({
   return { insertionMethod: insertionMethod, result: pubspecString };
 }
 
-deprecate(
-  addDependencyByObject,
-  "Currently using `addDependencyByText` instead."
-);
-function addDependencyByObject(
-  pubspecString: string,
-  newPackage: PubPackage
-): string {
-  let pubspec = safeLoad(pubspecString);
+function addDependencyByObject({
+  context,
+  pubspecString,
+  newPackage,
+}: {
+  context: PubspecContext;
+  pubspecString: string;
+  newPackage: PubPackage;
+}): { insertionMethod: InsertionMethod; result: string } {
+  const pubspecDoc = YAML.parseDocument(pubspecString);
 
-  if (!pubspec) {
-    pubspec = {};
-  }
+  const entryExists = pubspecDoc.hasIn([
+    context.dependencyType,
+    newPackage.name,
+  ]);
 
-  if (!pubspec.dependencies) {
-    pubspec.dependencies = {};
-  }
+  const insertionMethod = entryExists
+    ? InsertionMethod.REPLACE
+    : InsertionMethod.ADD;
 
-  pubspec.dependencies[newPackage.name] = `^${newPackage.latestVersion}`;
+  const versionString = `${context.settings.useCaretSyntax ? "^" : ""}${
+    newPackage.latestVersion
+  }`;
 
-  return safeDump(pubspec);
+  pubspecDoc.setIn([context.dependencyType, newPackage.name], versionString);
+
+  const result = pubspecDoc.toString();
+
+  return { insertionMethod, result };
 }
 
 function askPackageName(context: PubspecContext): Thenable<string | undefined> {
