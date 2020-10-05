@@ -32,6 +32,13 @@ You can look for and import packages directly from VS Code without ever switchin
 **Pubspec Assist is smart about finding what you're trying to search for.**<br/>
 It gets you the most likely package you want and will give you a selection to choose from otherwise and **sorts them by relevance**.
 
+### Automatically sort dependencies.
+
+**Pubspec Assist automatically sorts your dependencies after adding a new package.**<br/>
+This makes it easy to manage packages from multiple sources, such as local packages, ones hosted on Git, somewhere else or regular packages from [pub.dev](https://pub.dev/).
+
+Already have your dependencies set up? **Just use the sort command to instantly sort your existing dependencies.**
+
 ### Compatible with multiple projects.
 
 **Pubspec Assist will add your new dependencies to the `pubspec.yaml` that's open in your editor.**<br/>
@@ -51,8 +58,10 @@ Don't have your `pubspec.yaml` file opened? No problem - the package will be add
 
 Some features that are planned for the future, in order of expected implementation.
 
+- Search/batch add/update multiple packages.
+- Command for updating all packages.
 - Auto-complete while searching.
 
 ## Bugs and feature requests
 
-If you have any bugs or feature requests to report, please check out the issues on the GitHub repository page or create a new one.
+If you have any bugs or feature requests to report, please check out the issues on the GitHub repository or create a new one.

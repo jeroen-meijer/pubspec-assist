@@ -4,6 +4,7 @@ export type Settings = {
   autoAddPackage: boolean;
   useCaretSyntax: boolean;
   useLegacyParser: boolean;
+  sortDependencies: boolean;
 };
 
 export const getSettings = () => {
@@ -13,6 +14,7 @@ export const getSettings = () => {
   return <Settings>{
     autoAddPackage: getSettingByKey("autoAddPackage") ?? true,
     useCaretSyntax: getSettingByKey("useCaretSyntax") ?? true,
+    sortDependencies: getSettingByKey("sortDependencies") ?? false,
     useLegacyParser: getSettingByKey("useLegacyParser") ?? false,
   };
 };

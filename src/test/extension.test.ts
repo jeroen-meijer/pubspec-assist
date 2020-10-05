@@ -1,7 +1,7 @@
 import * as assert from "assert";
 import * as fs from "fs";
 
-import { addDependencyByText } from "../functions/addDependency";
+import { addDependencyToYamlString } from "../functions/addDependency";
 import { pubspecMockData } from "./pubspecMockData";
 import { PubspecMockTestCase } from "./pubspecMockTestCase";
 import {
@@ -25,19 +25,20 @@ suite("Extension: Dependency Adding Tests", function () {
   for (let testCase of testCases) {
     for (let pubspecMock of testCase.mocks) {
       test(`'${testCase.pubPackage.name}' (${testCase.pubPackage.latestVersion}) -> '${pubspecMock.name}'`, function () {
-        const result: string = addDependencyByText({
+        const result = addDependencyToYamlString({
           context: {
             openInEditor: true,
             dependencyType: "dependencies",
             settings: {
               autoAddPackage: true,
               useCaretSyntax: true,
+              sortDependencies: false,
               useLegacyParser: false,
-            }
+            },
           },
           pubspecString: pubspecMock.source,
           newPackage: testCase.pubPackage,
-        }).result;
+        });
 
         writeLog(
           "targets.yaml",

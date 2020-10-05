@@ -5,7 +5,6 @@ import * as vscode from "vscode";
 
 import { showError, showCriticalError, showInfo } from "../helper/messaging";
 import { PubAPI } from "../model/pubApi";
-import { PubError } from "../model/pubError";
 import { PubPackage } from "../model/pubPackage";
 import { getValue } from "../helper/getValue";
 import { DependencyType } from "../model/dependencyType";
@@ -13,6 +12,15 @@ import { PubspecContext } from "../model/pubspecContext";
 import { LabelIcon } from "../helper/labelIcon";
 import { getSettings } from "../helper/getSettings";
 import * as YAML from "yaml";
+import { YAMLMap } from "yaml/types";
+import { sortDependencies } from "../helper/sortDependencies";
+import { getFileContext } from "../helper/getFileContext";
+import { getPubspecText } from "../helper/getPubspecText";
+import { formatIfOpened } from "../helper/formatIfOpened";
+
+export type PubspecParserResult =
+  | { success: true; insertionMethod: InsertionMethod; result: string }
+  | { success: false; error: string };
 
 export enum InsertionMethod {
   ADD = "Added",
@@ -30,7 +38,7 @@ export async function addDependency(dependencyType: DependencyType) {
 
   if (!context.openInEditor && !fs.existsSync(context.path)) {
     showError(
-      new PubError(
+      new Error(
         "Pubspec file not found in workspace root. " +
           "Open the pubspec file you would like to edit and try again."
       )
@@ -86,32 +94,34 @@ export async function addDependency(dependencyType: DependencyType) {
     api.getPackage(chosenPackageString)
   );
 
+  gettingPackageMessage.dispose();
+
   if (!chosenPackageResponse) {
     return;
   }
 
-  gettingPackageMessage.dispose();
-
   const chosenPackage = chosenPackageResponse.result;
 
   try {
-    const preserveNewline = checkNewlineAtEndOfFile(context);
     formatIfOpened(context);
     const pubspecString = getPubspecText(context);
 
-    const parser = context.settings.useLegacyParser
-      ? addDependencyByText
-      : addDependencyByObject;
-
-    const modifiedPubspec = parser({
+    const pubspecParserResult = addDependencyToYamlString({
       context,
       pubspecString,
       newPackage: chosenPackage,
     });
 
-    const newPubspecString = modifiedPubspec.result.concat(
-      preserveNewline ? "\n" : ""
-    );
+    if (!pubspecParserResult.success) {
+      showError(Error(pubspecParserResult.error));
+      return;
+    }
+
+    let newPubspecString = pubspecParserResult.result;
+
+    if (context.settings.sortDependencies) {
+      newPubspecString = sortDependencies(newPubspecString);
+    }
 
     if (context.openInEditor) {
       const originalLines = pubspecString.split("\n");
@@ -134,142 +144,30 @@ export async function addDependency(dependencyType: DependencyType) {
     formatIfOpened(context);
 
     showInfo(
-      `${modifiedPubspec.insertionMethod.toString()} '${
+      `${pubspecParserResult.insertionMethod.toString()} '${
         chosenPackage.name
-      }' (version ${chosenPackage.latestVersion}).`
+      }' (version ${chosenPackage.latestVersion})${
+        !context.settings.sortDependencies ? "" : " and sorted file"
+      }.`
     );
   } catch (error) {
     showCriticalError(error);
   }
 }
 
-function getFileContext() {
-  const pubspecIsOpen = pubspecFileIsOpen();
-  const pubspecPath = pubspecIsOpen
-    ? vscode.window.activeTextEditor!.document.uri.fsPath
-    : `${vscode.workspace.rootPath}/pubspec.yaml`;
-
-  return {
-    openInEditor: pubspecIsOpen,
-    path: pubspecPath,
+export function addDependencyToYamlString({
+  context,
+  pubspecString,
+  newPackage,
+}: {
+  context: PubspecContext;
+  pubspecString: string;
+  newPackage: PubPackage;
+}): PubspecParserResult {
+  const options: YAML.Options = {
+    schema: "core",
   };
-}
-
-function getPubspecText(context: PubspecContext): string {
-  return context.openInEditor
-    ? vscode.window.activeTextEditor!.document.getText()
-    : fs.readFileSync(context.path, "utf8");
-}
-
-function checkNewlineAtEndOfFile(context: PubspecContext): boolean {
-  return getPubspecText(context).substr(-1) === "\n";
-}
-
-function pubspecFileIsOpen() {
-  return (
-    (vscode.window.activeTextEditor &&
-      (vscode.window.activeTextEditor.document.fileName.endsWith(
-        "pubspec.yaml"
-      ) ||
-        vscode.window.activeTextEditor.document.fileName.endsWith(
-          "pubspec.yml"
-        ))) ||
-    false
-  );
-}
-
-export function addDependencyByText({
-  context,
-  pubspecString,
-  newPackage,
-}: {
-  context: PubspecContext;
-  pubspecString: string;
-  newPackage: PubPackage;
-}): { insertionMethod: InsertionMethod; result: string } {
-  let insertionMethod = InsertionMethod.ADD;
-
-  let lines = pubspecString.split("\n");
-
-  let dependencyTypeQuery = `${context.dependencyType}:`;
-
-  let dependencyLineIndex = lines.findIndex(
-    (line) => line.trim() === dependencyTypeQuery
-  );
-
-  if (dependencyLineIndex === -1) {
-    lines.push(dependencyTypeQuery);
-    dependencyLineIndex = lines.length - 1;
-  }
-
-  if (dependencyLineIndex === lines.length - 1) {
-    lines.push("");
-  }
-
-  const dependencyString = `${newPackage.name}: ${
-    context.settings.useCaretSyntax ? "^" : ""
-  }${newPackage.latestVersion}`;
-
-  const existingPackageLineIndex = lines.findIndex((line) => {
-    if (!line.includes(":")) {
-      return false;
-    }
-
-    const sanitizedLine: string = line.trim();
-    const colonIndex: number = sanitizedLine.indexOf(":");
-    const potentialMatch = sanitizedLine.substring(0, colonIndex);
-
-    return potentialMatch.trim() === newPackage.name;
-  });
-  if (existingPackageLineIndex !== -1) {
-    const originalLine = lines[existingPackageLineIndex];
-
-    lines[existingPackageLineIndex] = "  " + dependencyString;
-
-    if (originalLine.includes("\r")) {
-      lines[existingPackageLineIndex] += "\r";
-    }
-    if (originalLine.includes("\n")) {
-      lines[existingPackageLineIndex] += "\n";
-    }
-
-    insertionMethod = InsertionMethod.REPLACE;
-  } else {
-    for (let i = dependencyLineIndex + 1; i < lines.length; i++) {
-      if (!lines[i].startsWith(" ") && !lines[i].trim().startsWith("#")) {
-        lines[i] = "  " + dependencyString + "\r\n" + lines[i];
-        break;
-      }
-      if (i === lines.length - 1) {
-        if (!lines[i].includes("\r")) {
-          lines[i] = lines[i] + "\r";
-        }
-        lines.push("  " + dependencyString);
-        break;
-      }
-    }
-  }
-
-  pubspecString = lines
-    .join("\n")
-    .split("\n")
-    // .map((line, index) => (!(line[0] === " ") ? "\n" + line : line))
-    .join("\n")
-    .trim();
-
-  return { insertionMethod: insertionMethod, result: pubspecString };
-}
-
-function addDependencyByObject({
-  context,
-  pubspecString,
-  newPackage,
-}: {
-  context: PubspecContext;
-  pubspecString: string;
-  newPackage: PubPackage;
-}): { insertionMethod: InsertionMethod; result: string } {
-  const pubspecDoc = YAML.parseDocument(pubspecString);
+  const pubspecDoc = YAML.parseDocument(pubspecString, options);
 
   const entryExists = pubspecDoc.hasIn([
     context.dependencyType,
@@ -284,11 +182,26 @@ function addDependencyByObject({
     newPackage.latestVersion
   }`;
 
-  pubspecDoc.setIn([context.dependencyType, newPackage.name], versionString);
+  const dependencyPath = pubspecDoc.get(context.dependencyType);
+  const dependencyPathIsEmpty =
+    dependencyPath === null || dependencyPath === undefined;
+  const dependencyPathIsYAMLMap = dependencyPath instanceof YAMLMap;
+
+  if (dependencyPathIsEmpty || !dependencyPathIsYAMLMap) {
+    if (!pubspecDoc.contents) {
+      pubspecDoc.contents = new YAMLMap();
+    }
+
+    pubspecDoc.set(context.dependencyType, {
+      [newPackage.name]: versionString,
+    });
+  } else {
+    (dependencyPath as YAMLMap).set(newPackage.name, versionString);
+  }
 
   const result = pubspecDoc.toString();
 
-  return { insertionMethod, result };
+  return { success: true, insertionMethod, result };
 }
 
 function askPackageName(context: PubspecContext): Thenable<string | undefined> {
@@ -317,11 +230,3 @@ function selectFrom(options: string[]): Thenable<string | undefined> {
     matchOnDescription: true,
   });
 }
-
-export function formatIfOpened(context: PubspecContext) {
-  if (context.openInEditor) {
-    vscode.commands.executeCommand("editor.action.formatDocument");
-  }
-}
-
-export default addDependency;

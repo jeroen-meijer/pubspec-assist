@@ -2,7 +2,7 @@
   "name": "pubspec-assist",
   "displayName": "Pubspec Assist",
   "description": "Easily add and update dependencies to your Dart and Flutter project.",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "publisher": "jeroen-meijer",
   "author": {
     "name": "Jeroen Meijer",
@@ -52,6 +52,11 @@
         "command": "pubspec-assist.addDevDependency",
         "title": "Add/update dev dependency",
         "category": "Pubspec Assist"
+      },
+      {
+        "command": "pubspec-assist.sortAllDependencies",
+        "title": "Sort all dependencies",
+        "category": "Pubspec Assist"
       }
     ],
     "configuration": [
@@ -63,6 +68,11 @@
             "type": "boolean",
             "default": true,
             "description": "If a package with a very close match to your search is found, add it to the pubspec file automatically."
+          },
+          "pubspec-assist.sortDependencies": {
+            "type": "boolean",
+            "default": true,
+            "description": "Sort all dependencies and dev_dependencies after adding/updating a dependency using the new YAML parser."
           },
           "pubspec-assist.useCaretSyntax": {
             "type": "boolean",
@@ -87,18 +97,18 @@
     "test": "node ./out/test/index.js"
   },
   "devDependencies": {
-    "@types/glob": "^7.1.1",
-    "@types/js-yaml": "^3.12.3",
+    "@types/glob": "^7.1.3",
+    "@types/js-yaml": "^3.12.5",
     "@types/mocha": "^5.2.6",
-    "@types/node": "^12.12.0",
+    "@types/node": "^12.12.62",
     "@types/openurl": "^1.0.0",
-    "@types/vscode": "^1.32.0",
+    "@types/vscode": "^1.49.0",
     "glob": "^7.1.4",
     "mocha": "^6.1.4",
-    "source-map-support": "^0.5.12",
+    "source-map-support": "^0.5.19",
     "tslint": "^5.19.0",
-    "typescript": "^3.8.3",
-    "vscode-test": "^1.3.0"
+    "typescript": "^3.9.7",
+    "vscode-test": "^1.4.0"
   },
   "dependencies": {
     "fuse-js-latest": "^3.1.0",
