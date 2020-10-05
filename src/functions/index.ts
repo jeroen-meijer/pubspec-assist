@@ -1,1 +1,2 @@
-export { addDependency } from "./addDependency";
+export * from "./addDependency";
+export * from "./sortAllDependencies";

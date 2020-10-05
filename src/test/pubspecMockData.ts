@@ -52,4 +52,4 @@ export const pubspecMockData: any = [
       },
     ],
   },
-];
+] as const;

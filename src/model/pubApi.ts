@@ -3,7 +3,7 @@ import "./pubPackage";
 import * as rm from "typed-rest-client/RestClient";
 import * as Fuse from "fuse-js-latest";
 
-import { escapeHtml } from "../escapeHtml";
+import { escapeHtml } from "../helper/escapeHtml";
 import { PubPackage } from "./pubPackage";
 import { PubPackageSearch } from "./pubPackageSearch";
 import { PubPage } from "./pubPage";

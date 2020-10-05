@@ -29,20 +29,20 @@ export function showError(error: Error, isCritical: boolean = false): void {
   if (!isCritical) {
     message += error.message;
     vscode.window.showErrorMessage(message);
-    return;
-  }
-  message += `A critical error has occurred.\n
+  } else {
+    message += `A critical error has occurred.\n
     If this happens again, please report it.\n\n
     
     Error message: ${error.message}`;
 
-  vscode.window
-    .showErrorMessage(message, {}, ...criticalErrorOptions)
-    .then((option?: vscode.MessageItem) => {
-      if (option) {
-        handleErrorOptionResponse(option.title, error);
-      }
-    });
+    vscode.window
+      .showErrorMessage(message, {}, ...criticalErrorOptions)
+      .then((option?: vscode.MessageItem) => {
+        if (option) {
+          handleErrorOptionResponse(option.title, error);
+        }
+      });
+  }
 }
 
 export async function showRetryableError(error: Error): Promise<boolean> {
