@@ -19,7 +19,7 @@ import { getPubspecText } from "../helper/getPubspecText";
 import { formatIfOpened } from "../helper/formatIfOpened";
 
 export type PubspecParserResult =
-  | { success: true; insertionMethod: InsertionMethod; result: string }
+  | { success: true; result: string }
   | { success: false; error: string };
 
 export enum InsertionMethod {
@@ -28,7 +28,7 @@ export enum InsertionMethod {
 }
 
 export async function addDependency(dependencyType: DependencyType) {
-  const api: PubAPI = new PubAPI();
+  const api = new PubAPI();
 
   const context: PubspecContext = {
     ...getFileContext(),
@@ -46,70 +46,79 @@ export async function addDependency(dependencyType: DependencyType) {
     return;
   }
 
-  const query = await askPackageName(context);
-  if (!query) {
+  const packageQueries = await getPackageNames(context);
+  if (packageQueries.length === 0) {
     return;
   }
 
-  const searchingMessage = setMessage({
-    message: `Looking for package '${query}'...`,
-  });
+  const packagesToAdd: PubPackage[] = [];
 
-  const res = await getValue(() => api.smartSearchPackage(query));
+  for (const query of packageQueries) {
+    const searchingMessage = setMessage({
+      message: `Looking for package '${query}'...`,
+    });
 
-  if (!res) {
-    return;
-  }
+    const res = await getValue(() => api.smartSearchPackage(query));
 
-  const searchResult = res.result;
-  searchingMessage.dispose();
+    if (!res) {
+      continue;
+    }
 
-  if (searchResult.packages.length === 0) {
-    showInfo(`Package with name '${query}' not found.`);
-    return;
-  }
+    const searchResult = res.result;
+    searchingMessage.dispose();
 
-  const chosenPackageString =
-    searchResult.packages.length === 1
-      ? searchResult.packages[0]
-      : await selectFrom(searchResult.packages);
+    if (searchResult.packages.length === 0) {
+      showInfo(`Package with name '${packageQueries}' not found.`);
+      continue;
+    }
 
-  if (!chosenPackageString) {
-    return;
-  }
+    const chosenPackageString =
+      searchResult.packages.length === 1
+        ? searchResult.packages[0]
+        : await selectFrom(query, searchResult.packages);
 
-  if (chosenPackageString.startsWith("dart:")) {
-    showInfo(
-      'You don\'t need to add a "dart:" package as a dependency; ' +
-        "they're preinstalled and can be imported directly."
+    if (!chosenPackageString) {
+      continue;
+    }
+
+    if (chosenPackageString.startsWith("dart:")) {
+      showInfo(
+        'You don\'t need to add a "dart:" package as a dependency; ' +
+          "they're preinstalled and can be imported directly."
+      );
+      continue;
+    }
+
+    const gettingPackageMessage = setMessage({
+      message: `Getting info for package '${chosenPackageString}'...`,
+    });
+
+    const chosenPackageResponse = await getValue(() =>
+      api.getPackage(chosenPackageString)
     );
-    return;
+
+    gettingPackageMessage.dispose();
+
+    if (!chosenPackageResponse) {
+      continue;
+    }
+
+    packagesToAdd.push(chosenPackageResponse.result);
   }
 
-  const gettingPackageMessage = setMessage({
-    message: `Getting info for package '${chosenPackageString}'...`,
-  });
-
-  const chosenPackageResponse = await getValue(() =>
-    api.getPackage(chosenPackageString)
-  );
-
-  gettingPackageMessage.dispose();
-
-  if (!chosenPackageResponse) {
+  if (packagesToAdd.length === 0) {
     return;
   }
-
-  const chosenPackage = chosenPackageResponse.result;
 
   try {
     formatIfOpened(context);
+
     const pubspecString = getPubspecText(context);
 
-    const pubspecParserResult = addDependencyToYamlString({
+    const pubspecParserResult = addDependenciesToYamlString({
       context,
       pubspecString,
-      newPackage: chosenPackage,
+      newPackages: packagesToAdd,
     });
 
     if (!pubspecParserResult.success) {
@@ -143,75 +152,84 @@ export async function addDependency(dependencyType: DependencyType) {
 
     formatIfOpened(context);
 
-    showInfo(
-      `${pubspecParserResult.insertionMethod.toString()} '${
-        chosenPackage.name
-      }' (version ${chosenPackage.latestVersion})${
-        !context.settings.sortDependencies ? "" : " and sorted file"
-      }.`
-    );
+    const infoText =
+      packagesToAdd.length === 1
+        ? `Added/updated '${packagesToAdd[0].name}' (version ${
+            packagesToAdd[0].latestVersion
+          })${!context.settings.sortDependencies ? "" : " and sorted file"}.`
+        : `Added/updated ${packagesToAdd.length} packages and sorted file.`;
+
+    showInfo(infoText);
   } catch (error) {
     showCriticalError(error);
   }
 }
 
-export function addDependencyToYamlString({
+export function addDependenciesToYamlString({
   context,
   pubspecString,
-  newPackage,
+  newPackages,
 }: {
   context: PubspecContext;
   pubspecString: string;
-  newPackage: PubPackage;
+  newPackages: PubPackage[];
 }): PubspecParserResult {
   const options: YAML.Options = {
     schema: "core",
   };
   const pubspecDoc = YAML.parseDocument(pubspecString, options);
 
-  const entryExists = pubspecDoc.hasIn([
-    context.dependencyType,
-    newPackage.name,
-  ]);
+  for (const newPackage of newPackages) {
+    const versionString = `${context.settings.useCaretSyntax ? "^" : ""}${
+      newPackage.latestVersion
+    }`;
 
-  const insertionMethod = entryExists
-    ? InsertionMethod.REPLACE
-    : InsertionMethod.ADD;
+    const dependencyPath = pubspecDoc.get(context.dependencyType, true);
+    const dependencyPathIsEmpty =
+      dependencyPath === null || dependencyPath === undefined;
+    const dependencyPathIsYAMLMap = dependencyPath instanceof YAMLMap;
 
-  const versionString = `${context.settings.useCaretSyntax ? "^" : ""}${
-    newPackage.latestVersion
-  }`;
-
-  const dependencyPath = pubspecDoc.get(context.dependencyType);
-  const dependencyPathIsEmpty =
-    dependencyPath === null || dependencyPath === undefined;
-  const dependencyPathIsYAMLMap = dependencyPath instanceof YAMLMap;
-
-  if (dependencyPathIsEmpty || !dependencyPathIsYAMLMap) {
-    if (!pubspecDoc.contents) {
+    if (
+      (dependencyPathIsEmpty || !dependencyPathIsYAMLMap) &&
+      !pubspecDoc.contents
+    ) {
       pubspecDoc.contents = new YAMLMap();
     }
 
+    const existingDependencies = dependencyPathIsEmpty
+      ? {}
+      : dependencyPathIsYAMLMap
+      ? dependencyPath.toJSON()
+      : dependencyPath;
+
     pubspecDoc.set(context.dependencyType, {
+      ...existingDependencies,
       [newPackage.name]: versionString,
     });
-  } else {
-    (dependencyPath as YAMLMap).set(newPackage.name, versionString);
   }
 
   const result = pubspecDoc.toString();
 
-  return { success: true, insertionMethod, result };
+  return { success: true, result };
 }
 
-function askPackageName(context: PubspecContext): Thenable<string | undefined> {
-  return vscode.window.showInputBox({
-    prompt: "Enter the package name.",
+async function getPackageNames(context: PubspecContext): Promise<string[]> {
+  const rawResult = await vscode.window.showInputBox({
+    prompt: "Enter package names, separated by commas.",
     placeHolder:
       context.dependencyType === "dependencies"
-        ? "Package name (cloud_firestore, get_it, ...)"
-        : "Package name (build_runner, freezed, ...)",
+        ? "Package names (cloud_firestore, get_it, ...)"
+        : "Package names (build_runner, freezed, ...)",
   });
+
+  if (!rawResult) {
+    return [];
+  }
+
+  return rawResult
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter((s) => s.length > 0);
 }
 
 function setMessage({
@@ -224,9 +242,13 @@ function setMessage({
   return vscode.window.setStatusBarMessage(`$(${labelIcon}) ${message}`);
 }
 
-function selectFrom(options: string[]): Thenable<string | undefined> {
-  return vscode.window.showQuickPick(options, {
+function selectFrom(
+  original: string,
+  items: string[]
+): Thenable<string | undefined> {
+  return vscode.window.showQuickPick(items, {
     canPickMany: false,
     matchOnDescription: true,
+    placeHolder: `Search results for "${original}"`,
   });
 }

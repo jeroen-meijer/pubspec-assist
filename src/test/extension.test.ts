@@ -1,7 +1,7 @@
 import * as assert from "assert";
 import * as fs from "fs";
 
-import { addDependencyToYamlString } from "../functions/addDependency";
+import { addDependenciesToYamlString } from "../functions/addDependency";
 import { pubspecMockData } from "./pubspecMockData";
 import { PubspecMockTestCase } from "./pubspecMockTestCase";
 import {
@@ -25,7 +25,7 @@ suite("Extension: Dependency Adding Tests", function () {
   for (let testCase of testCases) {
     for (let pubspecMock of testCase.mocks) {
       test(`'${testCase.pubPackage.name}' (${testCase.pubPackage.latestVersion}) -> '${pubspecMock.name}'`, function () {
-        const result = addDependencyToYamlString({
+        const result = addDependenciesToYamlString({
           context: {
             openInEditor: true,
             dependencyType: "dependencies",
@@ -37,7 +37,7 @@ suite("Extension: Dependency Adding Tests", function () {
             },
           },
           pubspecString: pubspecMock.source,
-          newPackage: testCase.pubPackage,
+          newPackages: [testCase.pubPackage],
         });
 
         writeLog(
