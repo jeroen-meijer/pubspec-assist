@@ -123,3 +123,10 @@ First official release! 🎉
 ### Changed
 
 - Turns out that recent changes have broken the comments functionality in most places. Whoops. The README now reflects this fact.
+
+## 2.2.1 - 2020-10-06
+
+### Changed
+
+- Updated README with new demo video.
+- Remove old roadmap item.

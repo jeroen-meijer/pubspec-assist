@@ -4,7 +4,7 @@
 
 Pubspec Assist is a Visual Studio Code extension that allows you to easily add dependencies to your [Dart](https://dart.dev/) and [Flutter](https://flutter.dev/) project's `pubspec.yaml`, all without leaving your editor.
 
-<img src="https://i.imgur.com/W2cGuPL.gif" style="width: 600px"/>
+<img src="./demo.gif" style="width: 500px"/>
 
 ## Usage
 
@@ -60,7 +60,6 @@ Don't have your `pubspec.yaml` file opened? No problem - the package will be add
 
 Some features that are planned for the future, in order of expected implementation.
 
-- Search/batch add/update multiple packages.
 - Command for updating all packages.
 - Auto-complete while searching.
 
