@@ -2,7 +2,7 @@
   "name": "pubspec-assist",
   "displayName": "Pubspec Assist",
   "description": "Easily add and update dependencies to your Dart and Flutter project.",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "publisher": "jeroen-meijer",
   "author": {
     "name": "Jeroen Meijer",
@@ -45,12 +45,12 @@
     "commands": [
       {
         "command": "pubspec-assist.addDependency",
-        "title": "Add/update dependency",
+        "title": "Add/update dependencies",
         "category": "Pubspec Assist"
       },
       {
         "command": "pubspec-assist.addDevDependency",
-        "title": "Add/update dev dependency",
+        "title": "Add/update dev dependencies",
         "category": "Pubspec Assist"
       },
       {

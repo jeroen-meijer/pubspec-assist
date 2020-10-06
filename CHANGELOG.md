@@ -109,3 +109,17 @@ First official release! 🎉
 ### Fixed
 
 - Fixed several bugs where the extension would crash when adding dependencies to an empty pubspec or empty `(dev_)dependencies`. (Thank you to [@cverdes](https://github.com/cverdes) for [#56](https://github.com/jeroen-meijer/pubspec-assist/issues/56), [@JCKodel](https://github.com/JCKodel) for [#54](https://github.com/jeroen-meijer/pubspec-assist/issues/54), [@simphotonics](https://github.com/simphotonics) for [#49](https://github.com/jeroen-meijer/pubspec-assist/issues/49) and [@ernestsheldon](https://github.com/ernestsheldon) for [#47](https://github.com/jeroen-meijer/pubspec-assist/issues/47)!)
+
+## 2.2.0 - 2020-10-06
+
+### Added
+
+- Functionality to add multiple packages in once query.
+
+### Fixed
+
+- Using the `autoAddPackage` option now automatically picks the first package that has the exact same name as the search query.
+
+### Changed
+
+- Turns out that recent changes have broken the comments functionality in most places. Whoops. The README now reflects this fact.

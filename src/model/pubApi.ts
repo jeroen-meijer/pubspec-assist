@@ -111,7 +111,11 @@ export class PubAPI {
     const significantResults = rankedResult.filter(
       (element) => element.score <= singleReturnThreshold
     );
-    if (significantResults.length === 1 && getSettings().autoAddPackage) {
+    if (
+      getSettings().autoAddPackage &&
+      significantResults.length > 0 &&
+      (significantResults.length === 1 || significantResults[0].score === 0)
+    ) {
       return {
         status: ResponseStatus.SUCCESS,
         result: new PubPackageSearch([significantResults[0].item.package]),

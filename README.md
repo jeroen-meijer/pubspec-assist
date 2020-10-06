@@ -12,6 +12,8 @@ Simply open the Command Palette (by default, `Ctrl+Shift+P` on Windows, `⌘+Shi
 
 Then, choose any of the available options (see the video above).
 
+**Pro-tip: You can search for multiple packages at a time by separating every package name with a comma (`bloc, cloud_firestore, provider`).**
+
 ## Download
 
 [Download the latest version here.](https://marketplace.visualstudio.com/items?itemName=jeroen-meijer.pubspec-assist)
@@ -20,7 +22,7 @@ Then, choose any of the available options (see the video above).
 
 ### Get the latest version for your packages.
 
-**Pubspec Assist will get you the latest version of whatever package you are looking for** and puts it in your `pubspec.yaml` file while preserving comments and (most) empty lines and formats the file automatically. If you already have the package in your `pubspec.yaml`, Pubspec Assist automatically updates it to the latest version for you. Oh, and it also supports `dev_dependencies`!
+**Pubspec Assist will get you the latest version of whatever package you are looking for**, puts it in your `pubspec.yaml` and formats the file automatically. If you already have the package in your `pubspec.yaml`, Pubspec Assist automatically updates it to the latest version for you. Oh, and it also supports `dev_dependencies`!
 
 ### Never leave VS Code.
 
