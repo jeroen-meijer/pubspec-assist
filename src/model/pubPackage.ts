@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { readFileSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import * as semver from "semver";
 
 export class PubPackage {
@@ -35,7 +35,7 @@ export class PubPackage {
     } else {
       sdkPath = String(flutterPath) + '/bin/cache/dart-sdk/version'
     }
-    if (!sdkPath) return json['version']
+    if (!existsSync(sdkPath)) return json['version']
     let buffer = readFileSync(sdkPath)
     let dartVer = buffer.toString()
 
