@@ -1,3 +1,7 @@
+import * as vscode from "vscode";
+import { existsSync, readFileSync } from "fs";
+import * as semver from "semver";
+
 export class PubPackage {
   constructor(
     name: string,
@@ -16,9 +20,37 @@ export class PubPackage {
   public static fromJSON(json: any): PubPackage {
     return new PubPackage(
       json["name"],
-      json["latest"]["version"],
+      this.getLatestCompatibleVersion(json),
       this.checkFlutterCompatibility(json)
     );
+  }
+
+  private static getLatestCompatibleVersion(json: any) : string {
+    // We get the current flutter sdk path from the vs configuration
+    let dartPath = vscode.workspace.getConfiguration('dart').get('sdkPath')
+    let flutterPath =  vscode.workspace.getConfiguration('dart').get('flutterSdkPath');
+    let sdkPath;
+    if (dartPath) {
+      sdkPath = String(dartPath) + '/version'
+    } else {
+      sdkPath = String(flutterPath) + '/bin/cache/dart-sdk/version'
+    }
+    if (!existsSync(sdkPath)) return json['version']
+    let buffer = readFileSync(sdkPath)
+    let dartVer = buffer.toString()
+
+    // We do a regex search just to be sure we are getting a valid semver string
+    let regex = RegExp(/(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)/);
+    let matches = regex.exec(dartVer);
+    let sdkVer = matches ? matches[0] : '';
+
+    // We filter out the versions that are not compatible with our SDK version
+    let filteredItems = json['versions'].filter((item: any, index: number, array: any) => {
+      let env = item['pubspec']['environment']['sdk'];
+      return semver.satisfies(sdkVer, env)
+    });
+
+    return filteredItems.pop()['version'] ?? json['version']
   }
 
   private static checkFlutterCompatibility(json: any): boolean {
