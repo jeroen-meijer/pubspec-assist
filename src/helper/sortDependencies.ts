@@ -2,7 +2,13 @@ import * as YAML from "yaml";
 import { Pair, Scalar, YAMLMap } from "yaml/types";
 import { dependencyTypes } from "../model/dependencyType";
 
-export function sortDependencies(pubspecString: string) {
+export function sortDependencies({
+  pubspecString,
+  useLegacySorting,
+}: {
+  pubspecString: string;
+  useLegacySorting: boolean;
+}) {
   const options: YAML.Options = {
     schema: "core",
   };
@@ -30,23 +36,28 @@ export function sortDependencies(pubspecString: string) {
       item.value.type === "MAP" &&
       item.value.items.some((item: Pair) => item.key.value === key);
 
-    const sortedItems = (dependencyPath.items as Pair[]).sort(sortByKey);
+    const baseSortedItems = (dependencyPath.items as Pair[]).sort(sortByKey);
 
-    const sortedItemsByImportType = {
-      sdk: sortedItems.filter(containsKey("sdk")),
-      path: sortedItems.filter(containsKey("path")),
-      git: sortedItems.filter(containsKey("git")),
-      hosted: sortedItems.filter(containsKey("hosted")),
-    };
+    let sortedDependencies: Pair[] = baseSortedItems;
+    if (useLegacySorting) {
+      const sortedItemsByImportType = {
+        sdk: baseSortedItems.filter(containsKey("sdk")),
+        path: baseSortedItems.filter(containsKey("path")),
+        git: baseSortedItems.filter(containsKey("git")),
+        hosted: baseSortedItems.filter(containsKey("hosted")),
+      };
+
+      sortedDependencies = [
+        ...sortedItemsByImportType.sdk,
+        ...sortedItemsByImportType.path,
+        ...sortedItemsByImportType.git,
+        ...sortedItemsByImportType.hosted,
+        ...baseSortedItems,
+      ];
+    }
 
     const newDependencyMap = new YAMLMap();
-    for (const item of [
-      ...sortedItemsByImportType.sdk,
-      ...sortedItemsByImportType.path,
-      ...sortedItemsByImportType.git,
-      ...sortedItemsByImportType.hosted,
-      ...sortedItems,
-    ]) {
+    for (const item of sortedDependencies) {
       if (!newDependencyMap.has(item.key)) {
         newDependencyMap.add(item);
       }

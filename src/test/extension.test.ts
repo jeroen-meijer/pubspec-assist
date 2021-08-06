@@ -34,6 +34,7 @@ suite("Extension: Dependency Adding Tests", function () {
               useCaretSyntax: true,
               sortDependencies: false,
               useLegacyParser: false,
+              useLegacySorting: false,
             },
           },
           pubspecString: pubspecMock.source,

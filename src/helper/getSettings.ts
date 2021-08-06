@@ -2,9 +2,10 @@ import * as vscode from "vscode";
 
 export type Settings = {
   autoAddPackage: boolean;
+  sortDependencies: boolean;
+  useLegacySorting: boolean;
   useCaretSyntax: boolean;
   useLegacyParser: boolean;
-  sortDependencies: boolean;
 };
 
 export const getSettings = () => {
@@ -13,8 +14,9 @@ export const getSettings = () => {
 
   return <Settings>{
     autoAddPackage: getSettingByKey("autoAddPackage") ?? true,
-    useCaretSyntax: getSettingByKey("useCaretSyntax") ?? true,
     sortDependencies: getSettingByKey("sortDependencies") ?? false,
+    useLegacySorting: getSettingByKey("useLegacySorting") ?? false,
+    useCaretSyntax: getSettingByKey("useCaretSyntax") ?? true,
     useLegacyParser: getSettingByKey("useLegacyParser") ?? false,
   };
 };

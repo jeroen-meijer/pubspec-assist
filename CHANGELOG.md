@@ -130,3 +130,14 @@ First official release! 🎉
 
 - Updated README with new demo video.
 - Remove old roadmap item.
+
+## 2.3.0 - 2021-08-06
+
+### Added
+
+- Added new sorting algorithm that satisfies [the "sort_pub_dependencies" Dart lint rule](https://dart-lang.github.io/linter/lints/sort_pub_dependencies.html).
+
+### Changed
+
+- Added option to use legacy sorting algorithm and set to disabled by default.
+- Various dependabot vulnerability fixes (again).

@@ -129,7 +129,10 @@ export async function addDependency(dependencyType: DependencyType) {
     let newPubspecString = pubspecParserResult.result;
 
     if (context.settings.sortDependencies) {
-      newPubspecString = sortDependencies(newPubspecString);
+      newPubspecString = sortDependencies({
+        pubspecString: newPubspecString,
+        useLegacySorting: context.settings.useLegacySorting,
+      });
     }
 
     if (context.openInEditor) {

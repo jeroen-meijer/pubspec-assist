@@ -30,7 +30,10 @@ export async function sortAllDependencies() {
   try {
     const pubspecString = getPubspecText(context);
 
-    const newPubspecString = sortDependencies(pubspecString);
+    const newPubspecString = sortDependencies({
+      pubspecString: pubspecString,
+      useLegacySorting: context.settings.useLegacySorting,
+    });
 
     if (context.openInEditor) {
       const originalLines = pubspecString.split("\n");

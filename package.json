@@ -2,7 +2,7 @@
   "name": "pubspec-assist",
   "displayName": "Pubspec Assist",
   "description": "Easily add and update dependencies to your Dart and Flutter project.",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "publisher": "jeroen-meijer",
   "author": {
     "name": "Jeroen Meijer",
@@ -73,6 +73,11 @@
             "type": "boolean",
             "default": true,
             "description": "Sort all dependencies and dev_dependencies after adding/updating a dependency using the new YAML parser."
+          },
+          "pubspec-assist.useLegacySorting": {
+            "type": "boolean",
+            "default": false,
+            "description": "Use the legacy sorting algorithm. Deprecated, should usually be turned off. When disabled (the default), a sorting algorithm will be used that satisfies the \"sort_pub_dependencies\" Dart lint rule."
           },
           "pubspec-assist.useCaretSyntax": {
             "type": "boolean",
