@@ -3,7 +3,7 @@
 import * as fs from "fs";
 import * as vscode from "vscode";
 
-import { showError, showCriticalError, showInfo } from "../helper/messaging";
+import { showError, handleCriticalError, showInfo } from "../helper/messaging";
 import { PubAPI } from "../model/pubApi";
 import { PubPackage } from "../model/pubPackage";
 import { getValue } from "../helper/getValue";
@@ -164,7 +164,7 @@ export async function addDependency(dependencyType: DependencyType) {
 
     showInfo(infoText);
   } catch (error) {
-    showCriticalError(error);
+    handleCriticalError(error);
   }
 }
 

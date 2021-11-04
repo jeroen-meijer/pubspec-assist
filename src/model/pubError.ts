@@ -83,8 +83,9 @@ export class PubApiSearchError extends PubError {
   }
 }
 
-export function getRestApiError(error: Error): PubError {
+export function getRestApiError(error: unknown): PubError {
   if (
+    error instanceof Error &&
     ["ENOTFOUND", "ETIMEDOUT"].some((errorDescription: string) =>
       error.message.includes(errorDescription)
     )

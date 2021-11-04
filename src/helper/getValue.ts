@@ -1,5 +1,5 @@
 import { PubApiNotRespondingError } from "../model/pubError";
-import { showRetryableError, showCriticalError } from "./messaging";
+import { showRetryableError, handleCriticalError } from "./messaging";
 
 const getValue = async <T>(f: () => T) => {
   let value: T | undefined;
@@ -13,7 +13,7 @@ const getValue = async <T>(f: () => T) => {
       if (error instanceof PubApiNotRespondingError) {
         tryAgain = await showRetryableError(error);
       } else {
-        showCriticalError(error);
+        handleCriticalError(error);
         tryAgain = false;
       }
     }
