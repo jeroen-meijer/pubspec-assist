@@ -5,6 +5,11 @@ All notable changes to the "pubspec-assist" extension will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.3.2 - 2021-11-04
+
+- fix: fix null reference exception when sorting dependencies with unbounded constraints using the legacy sorting system (fixes #97, #95, #89, #88, #76, #74, #73, #63)
+- fix: don't display "null" string for dependencies with unbounded constraints
+
 ## 2.3.1 - 2021-11-03
 
 - feat: properly handle errors when user's YAML file is not valid (closes #135, #134, #133, #131, #130, #129, #128, #127, #126, #125, #124, #123, #122, #121, #120, #116, #113, #112, #110, #108, #105, #104, #103, #102, #101, #100, #92, #90, #82, #79, #78, #75, #72, #67, #61)
