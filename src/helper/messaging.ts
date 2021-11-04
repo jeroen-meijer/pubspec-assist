@@ -21,22 +21,22 @@ let retryableErrorOptions: vscode.MessageItem[] = [
 ];
 
 export function showInfo(message: string): Thenable<string | undefined> {
-  return vscode.window.showInformationMessage(`Pubspec Assist: ${message}`);
+  return vscode.window.showInformationMessage(message);
 }
 
 export function showError(error: Error, isCritical: boolean = false): void {
-  let message: string = "Pubspec Assist: ";
   if (!isCritical) {
-    message += error.message;
-    vscode.window.showErrorMessage(message);
+    vscode.window.showErrorMessage(error.message);
   } else {
-    message += `A critical error has occurred.\n
-    If this happens again, please report it.\n\n
-    
-    Error message: ${error.message}`;
-
     vscode.window
-      .showErrorMessage(message, {}, ...criticalErrorOptions)
+      .showErrorMessage(
+        `A critical error has occurred.\n
+      If this happens again, please report it.\n\n
+
+      Error message: ${error.message}`,
+        {},
+        ...criticalErrorOptions
+      )
       .then((option?: vscode.MessageItem) => {
         if (option) {
           handleErrorOptionResponse(option.title, error);
@@ -46,16 +46,12 @@ export function showError(error: Error, isCritical: boolean = false): void {
 }
 
 export async function showRetryableError(error: Error): Promise<boolean> {
-  let message: string = "Pubspec Assist: ";
-  message += `An error has occurred:\n${error.message}`;
-
-  const response:
-    | vscode.MessageItem
-    | undefined = await vscode.window.showWarningMessage(
-    message,
-    {},
-    ...retryableErrorOptions
-  );
+  const response: vscode.MessageItem | undefined =
+    await vscode.window.showWarningMessage(
+      `An error has occurred:\n${error.message}`,
+      {},
+      ...retryableErrorOptions
+    );
 
   return !!response && response.title === ErrorOptionType.tryAgain;
 }
@@ -69,6 +65,20 @@ function handleErrorOptionResponse(option: string, error: Error) {
       break;
   }
 }
-export function showCriticalError(error: Error): void {
-  showError(error, true);
+
+export function handleCriticalError(error: unknown): void {
+  if (error instanceof Error) {
+    if (error.message.includes("Document with errors cannot be stringified")) {
+      showError(
+        new Error(
+          "Your pubspec YAML file is invalid or contains errors. " +
+            "Please fix them and try again."
+        )
+      );
+    } else {
+      showError(error, true);
+    }
+  } else {
+    showError(new Error(`Unknown error: ${error}`), true);
+  }
 }

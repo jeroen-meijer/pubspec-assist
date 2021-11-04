@@ -3,7 +3,7 @@
 import * as fs from "fs";
 import * as vscode from "vscode";
 
-import { showError, showCriticalError } from "../helper/messaging";
+import { showError, handleCriticalError } from "../helper/messaging";
 import { PubspecContext } from "../model/pubspecContext";
 import { getSettings } from "../helper/getSettings";
 import { sortDependencies } from "../helper/sortDependencies";
@@ -55,6 +55,6 @@ export async function sortAllDependencies() {
 
     formatIfOpened(context);
   } catch (error) {
-    showCriticalError(error);
+    handleCriticalError(error);
   }
 }
