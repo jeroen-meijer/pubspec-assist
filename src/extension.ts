@@ -11,12 +11,19 @@ export function activate(context: vscode.ExtensionContext) {
     ),
     addDevDependencyCommand: vscode.commands.registerCommand(
       "pubspec-assist.addDevDependency",
-      (_: vscode.ExtensionContext) =>
-        functions.addDependency("dev_dependencies")
+      (_: vscode.ExtensionContext) => functions.addDependency("dev_dependencies")
     ),
     sortAllDependenciesCommand: vscode.commands.registerCommand(
       "pubspec-assist.sortAllDependencies",
       (_: vscode.ExtensionContext) => functions.sortAllDependencies()
+    ),
+    updateAllDependenciesCommand: vscode.commands.registerCommand(
+      "pubspec-assist.updateAllDependencies",
+      (_: vscode.ExtensionContext) => functions.updateAllDependencies("dependencies")
+    ),
+    updateAllDevDependenciesCommand: vscode.commands.registerCommand(
+      "pubspec-assist.updateAllDevDependencies",
+      (_: vscode.ExtensionContext) => functions.updateAllDependencies("dev_dependencies")
     ),
   } as const;
 
