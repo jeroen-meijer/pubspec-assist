@@ -57,6 +57,16 @@
         "command": "pubspec-assist.sortAllDependencies",
         "title": "Sort all dependencies",
         "category": "Pubspec Assist"
+      },
+      {
+        "command": "pubspec-assist.updateAllDependencies",
+        "title": "Update all dependencies",
+        "category": "Pubspec Assist"
+      },
+      {
+        "command": "pubspec-assist.updateAllDevDependencies",
+        "title": "Update all Dev dependencies",
+        "category": "Pubspec Assist"
       }
     ],
     "configuration": [
@@ -73,6 +83,11 @@
             "type": "boolean",
             "default": true,
             "description": "Sort all dependencies and dev_dependencies after adding/updating a dependency using the new YAML parser."
+          },
+          "pubspec-assist.updateDependencies": {
+            "type": "boolean",
+            "default": true,
+            "description": "Update all dependencies and dev_dependencies."
           },
           "pubspec-assist.useLegacySorting": {
             "type": "boolean",
@@ -116,6 +131,7 @@
     "vscode-test": "^1.6.1"
   },
   "dependencies": {
+    "axios": "^1.4.0",
     "fuse-js-latest": "^3.1.0",
     "openurl": "^1.1.1",
     "typed-rest-client": "^1.8.6",
