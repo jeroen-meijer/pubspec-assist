@@ -23,7 +23,7 @@ VS Code extension for adding and updating Dart/Flutter `pubspec.yaml` dependenci
 - `tool/rewrite_changelog_for_release.sh` — insert version section on release
 - `tool/prepare_release.sh` — open a release PR (changelog + version bump)
 - `tool/verify_release_publish.sh` — sanity checks before publish
-- `.github/actions/setup-node-deps` — Node install + npm/ESLint/tsc caches
+- `.github/actions/setup-node-deps` — Node install + npm/ESLint caches
 - `.github/workflows/ci.yml` — lint + test on PRs
 - `.github/workflows/changelog.yml` — changelog enforcement on PRs
 - `.github/workflows/semantic-pull-request.yml` — semantic PR title check
