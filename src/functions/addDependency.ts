@@ -1,31 +1,22 @@
-"use strict";
-
 import * as fs from "fs";
 import * as vscode from "vscode";
 
-import { showError, handleCriticalError, showInfo } from "../helper/messaging";
-import { PubAPI } from "../model/pubApi";
-import { PubPackage } from "../model/pubPackage";
-import { getValue } from "../helper/getValue";
-import { DependencyType } from "../model/dependencyType";
-import { PubspecContext } from "../model/pubspecContext";
-import { LabelIcon } from "../helper/labelIcon";
-import { getSettings } from "../helper/getSettings";
-import * as YAML from "yaml";
-import { YAMLMap } from "yaml/types";
-import { sortDependencies } from "../helper/sortDependencies";
+import { formatIfOpened } from "../helper/formatIfOpened";
 import { getFileContext } from "../helper/getFileContext";
 import { getPubspecText } from "../helper/getPubspecText";
-import { formatIfOpened } from "../helper/formatIfOpened";
+import { getSettings } from "../helper/getSettings";
+import { getValue } from "../helper/getValue";
+import { LabelIcon } from "../helper/labelIcon";
+import { handleCriticalError, showError, showInfo } from "../helper/messaging";
+import { sortDependencies } from "../helper/sortDependencies";
+import { addDependenciesToYamlString } from "../helper/yamlDependencies";
+import { DependencyType } from "../model/dependencyType";
+import { PubAPI } from "../model/pubApi";
+import { PubPackage } from "../model/pubPackage";
+import { PubspecContext } from "../model/pubspecContext";
 
-export type PubspecParserResult =
-  | { success: true; result: string }
-  | { success: false; error: string };
-
-export enum InsertionMethod {
-  ADD = "Added",
-  REPLACE = "Replaced",
-}
+export { addDependenciesToYamlString } from "../helper/yamlDependencies";
+export type { PubspecParserResult } from "../helper/yamlDependencies";
 
 export async function addDependency(dependencyType: DependencyType) {
   const api = new PubAPI();
@@ -40,8 +31,8 @@ export async function addDependency(dependencyType: DependencyType) {
     showError(
       new Error(
         "Pubspec file not found in workspace root. " +
-          "Open the pubspec file you would like to edit and try again."
-      )
+          "Open the pubspec file you would like to edit and try again.",
+      ),
     );
     return;
   }
@@ -84,7 +75,7 @@ export async function addDependency(dependencyType: DependencyType) {
     if (chosenPackageString.startsWith("dart:")) {
       showInfo(
         'You don\'t need to add a "dart:" package as a dependency; ' +
-          "they're preinstalled and can be imported directly."
+          "they're preinstalled and can be imported directly.",
       );
       continue;
     }
@@ -94,7 +85,7 @@ export async function addDependency(dependencyType: DependencyType) {
     });
 
     const chosenPackageResponse = await getValue(() =>
-      api.getPackage(chosenPackageString)
+      api.getPackage(chosenPackageString),
     );
 
     gettingPackageMessage.dispose();
@@ -143,10 +134,10 @@ export async function addDependency(dependencyType: DependencyType) {
             new vscode.Position(0, 0),
             new vscode.Position(
               originalLines.length - 1,
-              originalLines[originalLines.length - 1].length
-            )
+              originalLines[originalLines.length - 1].length,
+            ),
           ),
-          newPubspecString
+          newPubspecString,
         );
       });
     } else {
@@ -166,54 +157,6 @@ export async function addDependency(dependencyType: DependencyType) {
   } catch (error) {
     handleCriticalError(error);
   }
-}
-
-export function addDependenciesToYamlString({
-  context,
-  pubspecString,
-  newPackages,
-}: {
-  context: PubspecContext;
-  pubspecString: string;
-  newPackages: PubPackage[];
-}): PubspecParserResult {
-  const options: YAML.Options = {
-    schema: "core",
-  };
-  const pubspecDoc = YAML.parseDocument(pubspecString, options);
-
-  for (const newPackage of newPackages) {
-    const versionString = `${context.settings.useCaretSyntax ? "^" : ""}${
-      newPackage.latestVersion
-    }`;
-
-    const dependencyPath = pubspecDoc.get(context.dependencyType, true);
-    const dependencyPathIsEmpty =
-      dependencyPath === null || dependencyPath === undefined;
-    const dependencyPathIsYAMLMap = dependencyPath instanceof YAMLMap;
-
-    if (
-      (dependencyPathIsEmpty || !dependencyPathIsYAMLMap) &&
-      !pubspecDoc.contents
-    ) {
-      pubspecDoc.contents = new YAMLMap();
-    }
-
-    const existingDependencies = dependencyPathIsEmpty
-      ? {}
-      : dependencyPathIsYAMLMap
-      ? dependencyPath.toJSON()
-      : dependencyPath;
-
-    pubspecDoc.set(context.dependencyType, {
-      ...existingDependencies,
-      [newPackage.name]: versionString,
-    });
-  }
-
-  const result = pubspecDoc.toString();
-
-  return { success: true, result };
 }
 
 async function getPackageNames(context: PubspecContext): Promise<string[]> {
@@ -247,7 +190,7 @@ function setMessage({
 
 function selectFrom(
   original: string,
-  items: string[]
+  items: string[],
 ): Thenable<string | undefined> {
   return vscode.window.showQuickPick(items, {
     canPickMany: false,

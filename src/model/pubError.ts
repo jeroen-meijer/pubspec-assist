@@ -74,7 +74,7 @@ export class PubApiNotRespondingError extends PubError {
 
 export class PubApiSearchError extends PubError {
   constructor(searchInfo: SearchInfo) {
-    let message: string = `
+    const message: string = `
     No response from Pub API call.\n
     Search type: "${searchInfo.searchType.toString()}".\n
     Details: "${searchInfo.details}".`;
@@ -83,15 +83,30 @@ export class PubApiSearchError extends PubError {
   }
 }
 
-export function getRestApiError(error: unknown): PubError {
-  if (
-    error instanceof Error &&
-    ["ENOTFOUND", "ETIMEDOUT"].some((errorDescription: string) =>
-      error.message.includes(errorDescription)
-    )
-  ) {
-    return new PubApiNotRespondingError();
-  } else {
-    return new PubError(`Rest client error: ${error}`);
+function isNetworkError(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
   }
+
+  const networkCodes = ["ENOTFOUND", "ETIMEDOUT", "ECONNREFUSED"];
+  if (
+    networkCodes.some((code) => error.message.includes(code)) ||
+    error.message.includes("fetch failed")
+  ) {
+    return true;
+  }
+
+  const cause = (error as Error & { cause?: unknown }).cause;
+  return (
+    cause instanceof Error &&
+    networkCodes.some((code) => cause.message.includes(code))
+  );
+}
+
+export function getRestApiError(error: unknown): PubError {
+  if (isNetworkError(error)) {
+    return new PubApiNotRespondingError();
+  }
+
+  return new PubError(`API error: ${error}`);
 }

@@ -5,7 +5,6 @@ export type Settings = {
   sortDependencies: boolean;
   useLegacySorting: boolean;
   useCaretSyntax: boolean;
-  useLegacyParser: boolean;
 };
 
 export const getSettings = () => {
@@ -14,9 +13,8 @@ export const getSettings = () => {
 
   return <Settings>{
     autoAddPackage: getSettingByKey("autoAddPackage") ?? true,
-    sortDependencies: getSettingByKey("sortDependencies") ?? false,
+    sortDependencies: getSettingByKey("sortDependencies") ?? true,
     useLegacySorting: getSettingByKey("useLegacySorting") ?? false,
     useCaretSyntax: getSettingByKey("useCaretSyntax") ?? true,
-    useLegacyParser: getSettingByKey("useLegacyParser") ?? false,
   };
 };
