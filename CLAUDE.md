@@ -67,6 +67,16 @@ Branches: `feat/<description>`, `fix/<description>`, `chore/<description>`. Rele
 
 PR titles must use the same types (enforced by CI).
 
+**PR body** — use this structure (see `.github/pull_request_template.md`):
+
+```markdown
+## Description
+
+This PR <terse description of what the PR does>.
+```
+
+Start with “This PR …” in one clear sentence. Add bullets or notes below only when something else is important (breaking changes, follow-ups, manual steps).
+
 ## Changelog Workflow
 
 - [CHANGELOG.md](CHANGELOG.md) follows [Keep a Changelog](https://keepachangelog.com/) with a preamble and `## Upcoming` section.
