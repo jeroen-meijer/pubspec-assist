@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Upcoming
 
+## 2.4.0 - 2026-07-01
+
 - fix(ci): drop tsc build-info cache that skipped compile output on CI
 - docs: update PR template
 - ci: add PR-only CI with lint, test, changelog, and semantic PR title checks
