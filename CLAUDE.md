@@ -90,7 +90,7 @@ Start with “This PR …” in one clear sentence. Add bullets or notes below o
 1. Add bullets under `## Upcoming` in `CHANGELOG.md`.
 2. Merge feature PRs to `main` after CI passes.
 3. Run `./tool/prepare_release.sh X.Y.Z` → release PR on `chore/release-X.Y.Z` with the **`release`** label.
-4. Squash-merge the release PR → **Publish Release** publishes to VS Code Marketplace (+ Open VSX when `OVSX_PAT` is set), creates a GitHub release with the `.vsix`, and tags `main` with `X.Y.Z`.
+4. Squash-merge the release PR → **Publish Release** publishes to VS Code Marketplace, creates a GitHub release with the `.vsix`, and tags `main` with `X.Y.Z`. Open VSX is updated separately via [Eclipse auto-publish](https://github.com/EclipseFdn/open-vsx.org/wiki/Auto-Publishing-Extensions).
 5. If publish fails after merge: Actions → **Publish Release** → **Run workflow** with the same version.
 
 ## Project-Specific Guardrails
@@ -104,7 +104,7 @@ Start with “This PR …” in one clear sentence. Add bullets or notes below o
 ## Secrets
 
 - `VSCE_PAT` — Azure DevOps PAT with Marketplace **Manage** scope (GitHub Actions secret).
-- `OVSX_PAT` — Open VSX token (GitHub Actions secret, optional).
+- `OVSX_PAT` — Open VSX token (GitHub Actions secret, optional; reserved for future direct publish — not used by CI while auto-publish mirrors Marketplace releases).
 - Local copies live in `.ci.env` (gitignored). Never commit secrets.
 
 ## What Not to Add

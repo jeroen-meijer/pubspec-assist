@@ -85,7 +85,7 @@ gh pr create \
 
 This PR prepares release **${VERSION}**: changelog section and \`package.json\` version bump.
 
-Merge with **squash** after CI passes. Merging this PR (with the \`${RELEASE_LABEL}\` label) publishes to the VS Code Marketplace and Open VSX (when configured), creates a GitHub release, and tags \`main\` with \`${VERSION}\`.
+Merge with **squash** after CI passes. Merging this PR (with the \`${RELEASE_LABEL}\` label) publishes to the VS Code Marketplace, creates a GitHub release, and tags \`main\` with \`${VERSION}\`.
 
 To retry a failed publish without merging again: Actions → **Publish Release** → **Run workflow** with version \`${VERSION}\`.
 EOF
