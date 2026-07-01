@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Upcoming
 
+- ci: add PR-only CI with lint, test, changelog, and semantic PR title checks
+- ci: add release pipeline with Marketplace and Open VSX publish on labeled release PR merge
+- chore: add release tooling (`tool/prepare_release.sh`) and CLAUDE.md
+- chore: rename default branch from `master` to `main`
 - chore: dependency upgrades and modernization
   - chore: upgrade TypeScript 5, ESLint 9, Mocha 11, and VS Code engine `^1.90.0`
   - chore: replace deprecated `activationEvents: ["*"]` with `onLanguage:yaml`
@@ -18,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - fix: update pub API base URL from `pub.dartlang.org` to `pub.dev`
   - fix: repair unit test runner and remove hardcoded absolute test paths
   - chore: remove unused `useLegacyParser` setting
-- ci: add GitHub Actions workflow for lint and test
+- ci: add GitHub Actions workflow for lint and test (superseded by full C1 CI profile)
 
 ## 2.3.2 - 2021-11-04
 

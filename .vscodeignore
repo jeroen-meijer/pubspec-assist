@@ -1,10 +1,26 @@
 .vscode/**
 .vscode-test/**
-out/test/**
-out/**/*.map
 src/**
 .gitignore
 tsconfig.json
-vsc-extension-quickstart.md
 eslint.config.mjs
 src/helper/ERROR-TEMPLATE.md
+
+# Dev / CI artifacts
+out/test/**
+out/**/*.map
+out/.tsbuildinfo
+.eslintcache
+*.env
+.ci.env
+.local.env
+tool/**
+.github/**
+graphify-out/**
+
+# Docs and assets not needed in the VSIX
+CLAUDE.md
+demo.gif
+page-example.json
+Pubspec Assist Logo.ai
+cspell.json

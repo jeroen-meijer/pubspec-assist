@@ -1,6 +1,9 @@
 out
 node_modules
+graphify-out/
 .vscode-test/
 *.vsix
+.eslintcache
 src/test/results/
 .vscode/pubspec.yaml
+*.env

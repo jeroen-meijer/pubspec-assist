@@ -66,3 +66,26 @@ Some features that are planned for the future, in order of expected implementati
 ## Bugs and feature requests
 
 If you have any bugs or feature requests to report, please check out the issues on the GitHub repository or create a new one.
+
+## Contributing
+
+- Branch from `main` using conventional names: `feat/…`, `fix/…`, `chore/…`.
+- Use conventional commit messages and PR titles (`feat:`, `fix:`, `chore:`, `ci:`, etc.).
+- Prepend changelog bullets under `## Upcoming` in [CHANGELOG.md](CHANGELOG.md) on every PR (newest at top). Nested sub-bullets are fine.
+- Run `npm run lint` and `npm test` before pushing.
+- Open a PR to `main`; squash-merge after **Lint**, **Test**, **Changelog updated**, and **Validate PR Title** pass.
+
+See [CLAUDE.md](CLAUDE.md) for the full runbook.
+
+## Release
+
+Releases are cut via labeled release PRs, not manual version bumps on `main`:
+
+```bash
+./tool/prepare_release.sh X.Y.Z
+```
+
+This opens `chore/release-X.Y.Z` with the `release` label. Squash-merge after CI passes to publish to the VS Code Marketplace, create a GitHub release, and tag `main`.
+
+First-time setup requires the `release` label and `VSCE_PAT` / `OVSX_PAT` secrets in GitHub Actions (see CLAUDE.md).
+

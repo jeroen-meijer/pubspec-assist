@@ -32,7 +32,7 @@
     "type": "git",
     "url": "https://github.com/jeroen-meijer/pubspec-assist"
   },
-  "homepage": "https://github.com/jeroen-meijer/pubspec-assist/blob/master/README.md",
+  "homepage": "https://github.com/jeroen-meijer/pubspec-assist/blob/main/README.md",
   "bugs": {
     "url": "https://github.com/jeroen-meijer/pubspec-assist/issues",
     "email": "jeroenfkmeijer@gmail.com"
@@ -92,14 +92,17 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "lint": "eslint src",
+    "lint": "eslint --cache --cache-location .eslintcache src",
     "pretest": "npm run compile",
-    "test": "mocha -u tdd 'out/test/**/*.test.js'"
+    "test": "mocha -u tdd 'out/test/**/*.test.js'",
+    "package": "vsce package --no-dependencies",
+    "vscode:publish": "vsce publish --no-dependencies"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.13.10",
     "@types/vscode": "^1.90.0",
+    "@vscode/vsce": "^3.2.1",
     "@typescript-eslint/eslint-plugin": "^8.26.1",
     "@typescript-eslint/parser": "^8.26.1",
     "eslint": "^9.22.0",

@@ -1,0 +1,32 @@
+name: Setup Node dependencies
+description: Node 22, restore npm/ESLint/tsc caches, then npm ci.
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "22"
+        cache: npm
+        cache-dependency-path: package-lock.json
+
+    - name: Restore ESLint cache
+      uses: actions/cache@v4
+      with:
+        path: .eslintcache
+        key: eslint-${{ runner.os }}-${{ hashFiles('eslint.config.mjs', 'src/**') }}
+        restore-keys: |
+          eslint-${{ runner.os }}-
+
+    - name: Restore TypeScript build info
+      uses: actions/cache@v4
+      with:
+        path: out/.tsbuildinfo
+        key: tsc-${{ runner.os }}-${{ hashFiles('tsconfig.json', 'src/**') }}
+        restore-keys: |
+          tsc-${{ runner.os }}-
+
+    - name: Install dependencies
+      run: npm ci
+      shell: bash
