@@ -89,27 +89,6 @@ jobs:
           fi
           npx @vscode/vsce publish --packagePath "$(ls -1 *.vsix | head -1)" --no-dependencies
 
-  open-vsx:
-    name: Publish to Open VSX
-    needs: marketplace
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download VSIX artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: vsix
-          path: .
-
-      - name: Publish to Open VSX
-        env:
-          OVSX_PAT: ${{ secrets.OVSX_PAT }}
-        run: |
-          if [ -z "$OVSX_PAT" ]; then
-            echo "OVSX_PAT not configured, skipping Open VSX publish"
-            exit 0
-          fi
-          npx ovsx publish "$(ls -1 *.vsix | head -1)" -p "$OVSX_PAT"
-
   release:
     name: Create GitHub release
     needs: [verify-release, marketplace]

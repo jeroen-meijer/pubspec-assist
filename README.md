@@ -87,5 +87,5 @@ Releases are cut via labeled release PRs, not manual version bumps on `main`:
 
 This opens `chore/release-X.Y.Z` with the `release` label. Squash-merge after CI passes to publish to the VS Code Marketplace, create a GitHub release, and tag `main`.
 
-First-time setup requires the `release` label and `VSCE_PAT` / `OVSX_PAT` secrets in GitHub Actions (see CLAUDE.md).
+First-time setup requires the `release` label and `VSCE_PAT` in GitHub Actions (see CLAUDE.md). Open VSX updates are handled by Eclipse auto-publish from the Marketplace.
 
