@@ -23,7 +23,7 @@ VS Code extension for adding and updating Dart/Flutter `pubspec.yaml` dependenci
 - `tool/rewrite_changelog_for_release.sh` — insert version section on release
 - `tool/prepare_release.sh` — open a release PR (changelog + version bump)
 - `tool/verify_release_publish.sh` — sanity checks before publish
-- `.github/actions/setup-node-deps` — Node install + npm/ESLint/tsc caches
+- `.github/actions/setup-node-deps` — Node install + npm/ESLint caches
 - `.github/workflows/ci.yml` — lint + test on PRs
 - `.github/workflows/changelog.yml` — changelog enforcement on PRs
 - `.github/workflows/semantic-pull-request.yml` — semantic PR title check
@@ -66,6 +66,16 @@ Conventional commits, optional scope:
 Branches: `feat/<description>`, `fix/<description>`, `chore/<description>`. Release branches: `chore/release-X.Y.Z`.
 
 PR titles must use the same types (enforced by CI).
+
+**PR body** — use this structure (see `.github/pull_request_template.md`):
+
+```markdown
+## Description
+
+This PR <terse description of what the PR does>.
+```
+
+Start with “This PR …” in one clear sentence. Add bullets or notes below only when something else is important (breaking changes, follow-ups, manual steps).
 
 ## Changelog Workflow
 

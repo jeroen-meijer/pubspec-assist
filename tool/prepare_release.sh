@@ -80,10 +80,15 @@ git push -u origin "$BRANCH"
 gh pr create \
   --title "chore: release ${VERSION}" \
   --label "$RELEASE_LABEL" \
-  --body "Prepare release **${VERSION}**: changelog section and \`package.json\` version bump.
+  --body "$(cat <<EOF
+## Description
+
+This PR prepares release **${VERSION}**: changelog section and \`package.json\` version bump.
 
 Merge with **squash** after CI passes. Merging this PR (with the \`${RELEASE_LABEL}\` label) publishes to the VS Code Marketplace and Open VSX (when configured), creates a GitHub release, and tags \`main\` with \`${VERSION}\`.
 
-To retry a failed publish without merging again: Actions → **Publish Release** → **Run workflow** with version \`${VERSION}\`."
+To retry a failed publish without merging again: Actions → **Publish Release** → **Run workflow** with version \`${VERSION}\`.
+EOF
+)"
 
 echo "Created branch ${BRANCH} and opened a release PR (label: ${RELEASE_LABEL})."
