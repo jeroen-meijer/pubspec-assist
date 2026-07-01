@@ -10,12 +10,12 @@ enum ErrorOptionType {
   close = "Close",
 }
 
-let criticalErrorOptions: vscode.MessageItem[] = [
+const criticalErrorOptions: vscode.MessageItem[] = [
   { title: ErrorOptionType.report },
   { title: ErrorOptionType.ignore },
 ];
 
-let retryableErrorOptions: vscode.MessageItem[] = [
+const retryableErrorOptions: vscode.MessageItem[] = [
   { title: ErrorOptionType.tryAgain },
   { title: ErrorOptionType.close },
 ];
@@ -59,7 +59,7 @@ export async function showRetryableError(error: Error): Promise<boolean> {
 function handleErrorOptionResponse(option: string, error: Error) {
   switch (option) {
     case ErrorOptionType.report:
-      openNewGitIssueUrl(error);
+      void openNewGitIssueUrl(error);
       break;
     default:
       break;

@@ -1,9 +1,3 @@
-import "./pubPackage";
-
-import * as rm from "typed-rest-client/RestClient";
-import * as Fuse from "fuse-js-latest";
-
-import { escapeHtml } from "../helper/escapeHtml";
 import { PubPackage } from "./pubPackage";
 import { PubPackageSearch } from "./pubPackageSearch";
 import { PubPage } from "./pubPage";
@@ -14,13 +8,13 @@ import {
   PackageSearchInfo,
 } from "./pubError";
 import { getSettings } from "../helper/getSettings";
+import Fuse from "fuse.js";
 
 export enum ResponseStatus {
   SUCCESS = "SUCCESS",
   FAILURE = "FAILURE",
 }
 
-// FIXME: Add PubResponse for FAILURE back in when necessary.
 export type PubResponse<T> = {
   status: ResponseStatus.SUCCESS;
   result: T;
@@ -33,47 +27,50 @@ const SuccessResponse = <T>(result: T): PubResponse<T> => {
   };
 };
 
+type SearchPackageItem = { package: string };
+
 export class PubAPI {
   private readonly baseUrl: string;
-  private restClient: rm.RestClient;
 
-  constructor(baseUrl: string = "https://pub.dartlang.org/api/") {
+  constructor(baseUrl: string = "https://pub.dev/api/") {
     this.baseUrl = baseUrl;
-    this.restClient = new rm.RestClient("Mozilla/5.0");
   }
 
   private generateUrl(resource: string) {
     return this.baseUrl + resource;
   }
 
+  private async getJson<T>(url: string): Promise<T> {
+    const response = await fetch(url, {
+      headers: { "User-Agent": "pubspec-assist" },
+    });
+    if (!response.ok) {
+      throw new PubApiSearchError(PackageSearchInfo(url));
+    }
+    return (await response.json()) as T;
+  }
+
   public async getPage(id: number = 1): Promise<PubResponse<PubPage>> {
-    const response: any = await this.getPageJson(id);
-    let result = PubPage.fromJSON(response);
+    const response = await this.getPageJson(id);
+    const result = PubPage.fromJSON(response);
     return SuccessResponse(result);
   }
 
-  private async getPageJson(id: number = 1): Promise<any> {
-    const res: rm.IRestResponse<any> = await this.restClient.get(
-      this.generateUrl(`packages?page=${id}`)
-    );
-    if (!res.result) {
+  private async getPageJson(id: number = 1): Promise<unknown> {
+    try {
+      return await this.getJson(this.generateUrl(`packages?page=${id}`));
+    } catch {
       throw new PubApiSearchError(PageSearchInfo(id));
     }
-    return res.result;
   }
 
   public async searchPackage(
     query: string
   ): Promise<PubResponse<PubPackageSearch>> {
-    const fullQuery = `search?q=${escapeHtml(query)}`;
+    const fullQuery = `search?q=${encodeURIComponent(query)}`;
     try {
-      const res: rm.IRestResponse<any> = await this.restClient.get(
-        this.generateUrl(fullQuery)
-      );
-      if (!res.result) {
-        throw new PubApiSearchError(PackageSearchInfo(query));
-      }
-      return SuccessResponse(PubPackageSearch.fromJSON(res.result));
+      const result = await this.getJson<unknown>(this.generateUrl(fullQuery));
+      return SuccessResponse(PubPackageSearch.fromJSON(result));
     } catch (e) {
       throw getRestApiError(e);
     }
@@ -89,27 +86,28 @@ export class PubAPI {
       threshold: 0.5,
       location: 0,
       distance: 100,
-      maxPatternLength: 32,
       minMatchCharLength: 1,
       keys: ["package"],
     };
 
-    const response: PubResponse<PubPackageSearch> = await this.searchPackage(
-      query
-    );
+    const response: PubResponse<PubPackageSearch> =
+      await this.searchPackage(query);
     if (!response.result) {
       throw new PubApiSearchError(PackageSearchInfo(query));
     }
 
     const searchResults: PubPackageSearch = response.result;
 
-    const fuse = new Fuse(searchResults.json.packages, fuseOptions);
-    const rankedResult = (fuse.search(query) as any[]).filter(
-      (element) => !element.item.package.startsWith("dart:")
+    const fuse = new Fuse<SearchPackageItem>(
+      searchResults.json.packages as SearchPackageItem[],
+      fuseOptions
     );
+    const rankedResult = fuse
+      .search(query)
+      .filter((element) => !element.item.package.startsWith("dart:"));
 
     const significantResults = rankedResult.filter(
-      (element) => element.score <= singleReturnThreshold
+      (element) => (element.score ?? 1) <= singleReturnThreshold
     );
     if (
       getSettings().autoAddPackage &&
@@ -132,13 +130,10 @@ export class PubAPI {
 
   public async getPackage(name: string): Promise<PubResponse<PubPackage>> {
     try {
-      const res: rm.IRestResponse<Object> = await this.restClient.get(
-        this.generateUrl(`packages/${name}`)
+      const result = await this.getJson<unknown>(
+        this.generateUrl(`packages/${encodeURIComponent(name)}`)
       );
-      if (!res.result) {
-        throw new PubApiSearchError(PackageSearchInfo(name));
-      }
-      return SuccessResponse(PubPackage.fromJSON(res.result));
+      return SuccessResponse(PubPackage.fromJSON(result));
     } catch (e) {
       throw getRestApiError(e);
     }

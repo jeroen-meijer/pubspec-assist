@@ -1,5 +1,3 @@
-"use strict";
-
 import * as vscode from "vscode";
 import * as functions from "./functions";
 
@@ -7,16 +5,15 @@ export function activate(context: vscode.ExtensionContext) {
   const commands = {
     addDependencyCommand: vscode.commands.registerCommand(
       "pubspec-assist.addDependency",
-      (_: vscode.ExtensionContext) => functions.addDependency("dependencies")
+      () => functions.addDependency("dependencies")
     ),
     addDevDependencyCommand: vscode.commands.registerCommand(
       "pubspec-assist.addDevDependency",
-      (_: vscode.ExtensionContext) =>
-        functions.addDependency("dev_dependencies")
+      () => functions.addDependency("dev_dependencies")
     ),
     sortAllDependenciesCommand: vscode.commands.registerCommand(
       "pubspec-assist.sortAllDependencies",
-      (_: vscode.ExtensionContext) => functions.sortAllDependencies()
+      () => functions.sortAllDependencies()
     ),
   } as const;
 
@@ -25,5 +22,4 @@ export function activate(context: vscode.ExtensionContext) {
   );
 }
 
-// this method is called when your extension is deactivated
 export function deactivate(): void {}

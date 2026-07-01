@@ -5,6 +5,25 @@ All notable changes to the "pubspec-assist" extension will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Upcoming
+
+- ci: add PR-only CI with lint, test, changelog, and semantic PR title checks
+- ci: add release pipeline with Marketplace and Open VSX publish on labeled release PR merge
+- chore: add release tooling (`tool/prepare_release.sh`) and CLAUDE.md
+- chore: rename default branch from `master` to `main`
+- chore: dependency upgrades and modernization
+  - chore: upgrade TypeScript 5, ESLint 9, Mocha 11, and VS Code engine `^1.90.0`
+  - chore: replace deprecated `activationEvents: ["*"]` with `onLanguage:yaml`
+  - chore: migrate from TSLint to ESLint with flat config
+  - chore: upgrade `yaml` to v2, replace `fuse-js-latest` with `fuse.js`, drop `typed-rest-client` and `openurl`
+  - refactor: use native `fetch` and `vscode.env.openExternal` for HTTP and URL handling
+  - refactor: extract `yamlDependencies` and `gitIssue` helpers for unit testing without the VS Code host
+  - fix: replace deprecated `workspace.rootPath` with `workspaceFolders` for multi-root workspaces
+  - fix: update pub API base URL from `pub.dartlang.org` to `pub.dev`
+  - fix: repair unit test runner and remove hardcoded absolute test paths
+  - chore: remove unused `useLegacyParser` setting
+- ci: add GitHub Actions workflow for lint and test (superseded by full C1 CI profile)
+
 ## 2.3.2 - 2021-11-04
 
 - fix: fix null reference exception when sorting dependencies with unbounded constraints using the legacy sorting system (fixes #97, #95, #89, #88, #76, #74, #73, #63)

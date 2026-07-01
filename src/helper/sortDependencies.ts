@@ -1,5 +1,4 @@
-import * as YAML from "yaml";
-import { Pair, Scalar, YAMLMap } from "yaml/types";
+import { parseDocument, YAMLMap, Pair, Scalar } from "yaml";
 import { dependencyTypes } from "../model/dependencyType";
 
 export function sortDependencies({
@@ -9,14 +8,8 @@ export function sortDependencies({
   pubspecString: string;
   useLegacySorting: boolean;
 }) {
-  const options: YAML.Options = {
-    schema: "core",
-  };
-  const pubspecDoc = YAML.parseDocument(pubspecString, options);
+  const pubspecDoc = parseDocument(pubspecString, { schema: "core" });
 
-  // A token used to identify dependencies that are unbounded
-  // (i.e., have no version constraint), so they can easily be set
-  // to an empty value later.
   const unboundedReplacementToken = "__UNBOUNDED_DEPENDENCY__";
 
   for (const dependencyType of dependencyTypes) {
@@ -36,14 +29,18 @@ export function sortDependencies({
     }
 
     const sortByKey = (a: Pair, b: Pair) =>
-      (a.key as Scalar).value < (b.key as Scalar).value ? -1 : 1;
+      String((a.key as Scalar).value) < String((b.key as Scalar).value)
+        ? -1
+        : 1;
     const containsKey = (key: string) => (item: Pair) =>
       !!item.value &&
-      item.value.type === "MAP" &&
-      item.value.items.some((item: Pair) => item.key.value === key);
+      item.value instanceof YAMLMap &&
+      item.value.items.some(
+        (entry) => String((entry.key as Scalar).value) === key
+      );
 
     const setNullValuePairsToUnbounded = (item: Pair) =>
-      !!item.value
+      item.value
         ? item
         : new Pair(item.key, new Scalar(unboundedReplacementToken));
 
@@ -81,13 +78,11 @@ export function sortDependencies({
 
   const dirtyPubspecString = pubspecDoc.toString();
 
-  const cleanPubspecString = dirtyPubspecString
+  return dirtyPubspecString
     .replace(new RegExp(unboundedReplacementToken, "g"), "")
     .split("\n")
     .map((line) => line.trimEnd())
     .join("\n");
-
-  return cleanPubspecString;
 }
 
 export default sortDependencies;

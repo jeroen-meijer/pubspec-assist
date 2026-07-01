@@ -1,0 +1,171 @@
+name: Publish Release
+
+# Publish when a release PR (label: release) is squash-merged to main.
+# workflow_dispatch retries a failed publish for a version already on main.
+# Do not trigger on tag push: the pipeline creates the version tag after success.
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Semver to publish (merged chore/release-x.y.z PR)
+        required: true
+        type: string
+
+concurrency:
+  group: publish-${{ github.event.pull_request.number || github.event.inputs.version }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  verify-release:
+    name: Verify release
+    runs-on: ubuntu-latest
+    if: >-
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.merged == true &&
+       contains(github.event.pull_request.labels.*.name, 'release')) ||
+      github.event_name == 'workflow_dispatch'
+    outputs:
+      tag: ${{ steps.verify.outputs.tag }}
+      version: ${{ steps.verify.outputs.version }}
+      sha: ${{ steps.verify.outputs.sha }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run release sanity checks
+        id: verify
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_EVENT: ${{ github.event_name }}
+          RELEASE_MERGED: ${{ github.event.pull_request.merged }}
+          RELEASE_PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+          RELEASE_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          RELEASE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+          RELEASE_VERSION: ${{ github.event.inputs.version }}
+        run: ./tool/verify_release_publish.sh
+
+  marketplace:
+    name: Publish to VS Code Marketplace
+    needs: verify-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout release commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.verify-release.outputs.sha }}
+
+      - name: Setup Node dependencies
+        uses: ./.github/actions/setup-node-deps
+
+      - name: Compile extension
+        run: npm run compile
+
+      - name: Package VSIX
+        run: npm run package
+
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vsix
+          path: "*.vsix"
+          if-no-files-found: error
+
+      - name: Publish to VS Code Marketplace
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: |
+          if [ -z "$VSCE_PAT" ]; then
+            echo "VSCE_PAT secret is not configured" >&2
+            exit 1
+          fi
+          npx @vscode/vsce publish --packagePath "$(ls -1 *.vsix | head -1)" --no-dependencies
+
+  open-vsx:
+    name: Publish to Open VSX
+    needs: marketplace
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download VSIX artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: vsix
+          path: .
+
+      - name: Publish to Open VSX
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        run: |
+          if [ -z "$OVSX_PAT" ]; then
+            echo "OVSX_PAT not configured, skipping Open VSX publish"
+            exit 0
+          fi
+          npx ovsx publish "$(ls -1 *.vsix | head -1)" -p "$OVSX_PAT"
+
+  release:
+    name: Create GitHub release
+    needs: [verify-release, marketplace]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout release commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.verify-release.outputs.sha }}
+          fetch-depth: 0
+
+      - name: Download VSIX artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: vsix
+          path: release-assets
+
+      - name: Create release and upload VSIX
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ needs.verify-release.outputs.version }}"
+          SHA="${{ needs.verify-release.outputs.sha }}"
+          gh release create "$VERSION" \
+            --target "$SHA" \
+            --title "$VERSION" \
+            --generate-notes \
+            release-assets/*.vsix
+
+  tag-release:
+    name: Tag release commit
+    needs: [verify-release, marketplace, release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create and push version tag
+        run: |
+          VERSION="${{ needs.verify-release.outputs.version }}"
+          SHA="${{ needs.verify-release.outputs.sha }}"
+          short_sha() { printf '%.7s' "$1"; }
+          git config user.name github-actions[bot]
+          git config user.email github-actions[bot]@users.noreply.github.com
+
+          REMOTE_SHA="$(git ls-remote --tags origin "refs/tags/${VERSION}" | awk '{print $1}' | head -1 || true)"
+          if [ -n "$REMOTE_SHA" ]; then
+            if [ "$REMOTE_SHA" != "$SHA" ]; then
+              echo "error: tag $VERSION on origin points to $(short_sha "$REMOTE_SHA"), expected $(short_sha "$SHA")"
+              exit 1
+            fi
+            echo "Tag $VERSION already on origin at $(short_sha "$SHA")"
+            exit 0
+          fi
+
+          git tag "$VERSION" "$SHA"
+          git push origin "refs/tags/${VERSION}"
