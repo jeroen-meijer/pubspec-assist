@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Upcoming
 
+- fix: stop passing `--no-dependencies` to `vsce package`/`vsce publish` — the extension isn't bundled, so this stripped `node_modules` (`yaml`, `fuse.js`) from the VSIX and made the extension fail to activate on install (fixes "command 'pubspec-assist.sortAllDependencies' not found" regression from 2.4.0)
 - ci: remove Open VSX publish from release pipeline (extension mirrored via Eclipse auto-publish)
 
 ## 2.4.0 - 2026-07-01

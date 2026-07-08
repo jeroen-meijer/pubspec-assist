@@ -99,7 +99,7 @@ Start with “This PR …” in one clear sentence. Add bullets or notes below o
 - IMPORTANT: `pubspec.yaml` must be a valid YAML map at the root. Malformed files can crash the extension — handle errors gracefully when touching parsing code.
 - IMPORTANT: Package search requires network access to pub.dev.
 - Do not use deprecated `workspace.rootPath` — use `workspace.workspaceFolders` for multi-root workspaces.
-- Runtime deps (`fuse.js`, `yaml`) are compiled to `out/`; use `vsce package --no-dependencies` for publishing.
+- IMPORTANT: Runtime deps (`fuse.js`, `yaml`) are NOT bundled into `out/` (plain `tsc`, no bundler) — `vsce package`/`vsce publish` must run *without* `--no-dependencies`, or the VSIX ships without `node_modules` and the extension fails to activate on install.
 
 ## Secrets
 
