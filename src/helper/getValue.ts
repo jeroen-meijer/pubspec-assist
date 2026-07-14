@@ -7,7 +7,7 @@ const getValue = async <T>(f: () => T) => {
 
   while (tryAgain) {
     try {
-      value = f();
+      value = await f();
       tryAgain = false;
     } catch (error) {
       if (error instanceof PubApiNotRespondingError) {
