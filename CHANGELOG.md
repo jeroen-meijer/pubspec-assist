@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Upcoming
 
+- fix: await pub.dev API callback in `getValue` so network errors trigger the retry prompt instead of failing silently
 - ci: remove Open VSX publish from release pipeline (extension mirrored via Eclipse auto-publish)
 
 ## 2.4.0 - 2026-07-01
