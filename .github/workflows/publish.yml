@@ -87,7 +87,7 @@ jobs:
             echo "VSCE_PAT secret is not configured" >&2
             exit 1
           fi
-          npx @vscode/vsce publish --packagePath "$(ls -1 *.vsix | head -1)" --no-dependencies
+          npx @vscode/vsce publish --packagePath "$(ls -1 *.vsix | head -1)"
 
   release:
     name: Create GitHub release
