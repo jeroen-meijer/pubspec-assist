@@ -36,3 +36,31 @@ jobs:
 
       - name: Test
         run: npm test
+
+      - name: Verify VSIX bundles runtime dependencies
+        run: |
+          npm run package
+          node -e '
+            const { execSync } = require("child_process");
+            const fs = require("fs");
+            const vsix = fs.readdirSync(".").find((f) => f.endsWith(".vsix"));
+            if (!vsix) {
+              console.error("no VSIX produced");
+              process.exit(1);
+            }
+            const listing = execSync("unzip -Z -1 " + JSON.stringify(vsix), {
+              encoding: "utf8",
+            });
+            if (!listing.includes("extension/out/extension.js")) {
+              console.error("VSIX missing extension/out/extension.js");
+              process.exit(1);
+            }
+            if (
+              listing.includes("node_modules/yaml") ||
+              listing.includes("node_modules/fuse.js")
+            ) {
+              console.error("VSIX still ships unbundled yaml/fuse.js");
+              process.exit(1);
+            }
+            console.log("ok", vsix);
+          '

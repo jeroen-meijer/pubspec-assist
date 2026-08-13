@@ -4,7 +4,7 @@ VS Code extension for adding and updating Dart/Flutter `pubspec.yaml` dependenci
 
 ## Tech Stack
 
-- TypeScript 6, ESLint 10 (flat config), Mocha 11
+- TypeScript 6, ESLint 10 (flat config), Mocha 11, esbuild
 - `yaml` v2 for pubspec parsing/serialization
 - `fuse.js` for fuzzy package search
 - npm for installs, scripts, and CI
@@ -14,6 +14,7 @@ VS Code extension for adding and updating Dart/Flutter `pubspec.yaml` dependenci
 ## Key Paths
 
 - `src/extension.ts` — activation, command registration
+- `esbuild.mjs` — bundles `src/extension.ts` + runtime deps into `out/extension.js`
 - `src/functions/addDependency.ts` — add/update dependency flow
 - `src/functions/sortAllDependencies.ts` — sort pubspec dependencies
 - `src/helper/yamlDependencies.ts` — YAML dependency map helpers (unit-testable)
@@ -99,7 +100,7 @@ Start with “This PR …” in one clear sentence. Add bullets or notes below o
 - IMPORTANT: `pubspec.yaml` must be a valid YAML map at the root. Malformed files can crash the extension — handle errors gracefully when touching parsing code.
 - IMPORTANT: Package search requires network access to pub.dev.
 - Do not use deprecated `workspace.rootPath` — use `workspace.workspaceFolders` for multi-root workspaces.
-- Runtime deps (`fuse.js`, `yaml`) are compiled to `out/`; use `vsce package --no-dependencies` for publishing.
+- Runtime deps (`fuse.js`, `yaml`) must be **bundled** into `out/extension.js` via esbuild. `tsc` does not inline them. `vsce package --no-dependencies` is correct only because the bundle includes those modules. Do not ship a VSIX that `require()`s `yaml`/`fuse.js` from `node_modules`.
 
 ## Secrets
 

@@ -89,8 +89,8 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
+    "vscode:prepublish": "npm run compile -- --production",
+    "compile": "tsc -p ./ && node esbuild.mjs",
     "watch": "tsc -watch -p ./",
     "lint": "eslint --cache --cache-location .eslintcache src",
     "pretest": "npm run compile",
@@ -104,6 +104,7 @@
     "@types/node": "^22.20.1",
     "@types/vscode": "^1.90.0",
     "@vscode/vsce": "^3.9.2",
+    "esbuild": "^0.28.2",
     "eslint": "^10.8.1",
     "mocha": "^11.8.0",
     "typescript": "^6.0.3",
