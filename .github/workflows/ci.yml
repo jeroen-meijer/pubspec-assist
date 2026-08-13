@@ -36,3 +36,19 @@ jobs:
 
       - name: Test
         run: npm test
+
+  package:
+    name: Package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node dependencies
+        uses: ./.github/actions/setup-node-deps
+
+      - name: Package VSIX
+        run: npm run package
+
+      - name: Verify VSIX bundles runtime dependencies
+        run: ./tool/check_vsix.sh

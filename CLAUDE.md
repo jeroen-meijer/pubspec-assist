@@ -4,7 +4,7 @@ VS Code extension for adding and updating Dart/Flutter `pubspec.yaml` dependenci
 
 ## Tech Stack
 
-- TypeScript 5, ESLint 9 (flat config), Mocha 11
+- TypeScript 6, ESLint 10 (flat config), Mocha 11, esbuild
 - `yaml` v2 for pubspec parsing/serialization
 - `fuse.js` for fuzzy package search
 - npm for installs, scripts, and CI
@@ -14,17 +14,19 @@ VS Code extension for adding and updating Dart/Flutter `pubspec.yaml` dependenci
 ## Key Paths
 
 - `src/extension.ts` — activation, command registration
+- `esbuild.mjs` — bundles `src/extension.ts` + runtime deps into `out/extension.js`
 - `src/functions/addDependency.ts` — add/update dependency flow
 - `src/functions/sortAllDependencies.ts` — sort pubspec dependencies
 - `src/helper/yamlDependencies.ts` — YAML dependency map helpers (unit-testable)
 - `src/helper/gitIssue.ts` — Git-hosted dependency detection
 - `src/model/pubApi.ts` — pub.dev API client (`fetch`)
 - `tool/check_changelog_pr.sh` — CI: verify prepended `## Upcoming` entries
+- `tool/check_vsix.sh` — CI: VSIX contains bundled `yaml`/`fuse.js`
 - `tool/rewrite_changelog_for_release.sh` — insert version section on release
 - `tool/prepare_release.sh` — open a release PR (changelog + version bump)
 - `tool/verify_release_publish.sh` — sanity checks before publish
-- `.github/actions/setup-node-deps` — Node install + npm/ESLint caches
-- `.github/workflows/ci.yml` — lint + test on PRs
+- `.github/actions/setup-node-deps` — Node 22 + `actions/cache` for `~/.npm` / `node_modules` / ESLint
+- `.github/workflows/ci.yml` — lint + test + package on PRs
 - `.github/workflows/changelog.yml` — changelog enforcement on PRs
 - `.github/workflows/semantic-pull-request.yml` — semantic PR title check
 - `.github/workflows/publish.yml` — merged release PR → Marketplace + GitHub release + tag
@@ -46,7 +48,7 @@ Press **F5** in VS Code to launch an Extension Development Host.
 ## Workflow Rules
 
 - **`main` is protected:** no direct pushes (including admins); changes land via **squash-merge PR** only.
-- Required PR checks: **Lint**, **Test**, **Changelog updated**, **Validate PR Title**.
+- Required PR checks: **Lint**, **Test**, **Package**, **Changelog updated**, **Validate PR Title**.
 - CI runs on pull requests only, not on pushes to `main`.
 - Run `npm run lint` and `npm test` before pushing.
 
@@ -99,7 +101,7 @@ Start with “This PR …” in one clear sentence. Add bullets or notes below o
 - IMPORTANT: `pubspec.yaml` must be a valid YAML map at the root. Malformed files can crash the extension — handle errors gracefully when touching parsing code.
 - IMPORTANT: Package search requires network access to pub.dev.
 - Do not use deprecated `workspace.rootPath` — use `workspace.workspaceFolders` for multi-root workspaces.
-- Runtime deps (`fuse.js`, `yaml`) are compiled to `out/`; use `vsce package --no-dependencies` for publishing.
+- Runtime deps (`fuse.js`, `yaml`) must be **bundled** into `out/extension.js` via esbuild. `tsc` does not inline them. `vsce package --no-dependencies` is correct only because the bundle includes those modules. Do not ship a VSIX that `require()`s `yaml`/`fuse.js` from `node_modules`.
 
 ## Secrets
 

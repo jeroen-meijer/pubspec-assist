@@ -56,7 +56,9 @@ suite("Extension: Dependency Adding Tests", function () {
           }) - ${pubspecMock.name}:\t${JSON.stringify(result)}`
         );
 
-        assert.strictEqual(result.success, true);
+        if (!result.success) {
+          assert.fail(result.error);
+        }
         assert.deepStrictEqual(
           parseDocument(result.result).toJSON(),
           parseDocument(pubspecMock.target).toJSON(),

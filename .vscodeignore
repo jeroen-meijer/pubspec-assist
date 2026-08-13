@@ -4,12 +4,12 @@ src/**
 .gitignore
 tsconfig.json
 eslint.config.mjs
+esbuild.mjs
 src/helper/ERROR-TEMPLATE.md
 
 # Dev / CI artifacts
-out/test/**
-out/**/*.map
-out/.tsbuildinfo
+out/**
+!out/extension.js
 .eslintcache
 *.env
 .ci.env
