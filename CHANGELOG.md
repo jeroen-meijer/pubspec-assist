@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Upcoming
 
+## 2.4.1 - 2026-08-13
+
 - ci: add Package check and cache node_modules like other repos
 - fix: bundle `yaml` and `fuse.js` into the VSIX so the extension activates (fixes #170)
 - chore: upgrade TypeScript 6, ESLint 10, yaml 2.9, fuse.js 7.5, and other npm dependencies (keep VS Code engine `^1.90.0`)
