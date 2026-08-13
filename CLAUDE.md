@@ -21,11 +21,12 @@ VS Code extension for adding and updating Dart/Flutter `pubspec.yaml` dependenci
 - `src/helper/gitIssue.ts` — Git-hosted dependency detection
 - `src/model/pubApi.ts` — pub.dev API client (`fetch`)
 - `tool/check_changelog_pr.sh` — CI: verify prepended `## Upcoming` entries
+- `tool/check_vsix.sh` — CI: VSIX contains bundled `yaml`/`fuse.js`
 - `tool/rewrite_changelog_for_release.sh` — insert version section on release
 - `tool/prepare_release.sh` — open a release PR (changelog + version bump)
 - `tool/verify_release_publish.sh` — sanity checks before publish
-- `.github/actions/setup-node-deps` — Node install + npm/ESLint caches
-- `.github/workflows/ci.yml` — lint + test on PRs
+- `.github/actions/setup-node-deps` — Node 22 + `actions/cache` for `~/.npm` / `node_modules` / ESLint
+- `.github/workflows/ci.yml` — lint + test + package on PRs
 - `.github/workflows/changelog.yml` — changelog enforcement on PRs
 - `.github/workflows/semantic-pull-request.yml` — semantic PR title check
 - `.github/workflows/publish.yml` — merged release PR → Marketplace + GitHub release + tag
@@ -47,7 +48,7 @@ Press **F5** in VS Code to launch an Extension Development Host.
 ## Workflow Rules
 
 - **`main` is protected:** no direct pushes (including admins); changes land via **squash-merge PR** only.
-- Required PR checks: **Lint**, **Test**, **Changelog updated**, **Validate PR Title**.
+- Required PR checks: **Lint**, **Test**, **Package**, **Changelog updated**, **Validate PR Title**.
 - CI runs on pull requests only, not on pushes to `main`.
 - Run `npm run lint` and `npm test` before pushing.
 

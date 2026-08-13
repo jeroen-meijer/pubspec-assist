@@ -1,5 +1,5 @@
 name: Setup Node dependencies
-description: Node 22, restore npm/ESLint/tsc caches, then npm ci.
+description: Node 22, restore npm/node_modules/ESLint caches, then npm ci.
 
 runs:
   using: composite
@@ -8,17 +8,25 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version: "22"
-        cache: npm
-        cache-dependency-path: package-lock.json
 
-    - name: Restore ESLint cache
+    - name: Restore Node dependency cache
       uses: actions/cache@v4
+      id: node-deps-cache
       with:
-        path: .eslintcache
-        key: eslint-${{ runner.os }}-${{ hashFiles('eslint.config.mjs', 'src/**') }}
+        path: |
+          ~/.npm
+          node_modules
+          .eslintcache
+        key: node-deps-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
         restore-keys: |
-          eslint-${{ runner.os }}-
+          node-deps-${{ runner.os }}-
 
     - name: Install dependencies
+      if: steps.node-deps-cache.outputs.cache-hit != 'true'
       run: npm ci
+      shell: bash
+
+    - name: Ensure node_modules after cache hit
+      if: steps.node-deps-cache.outputs.cache-hit == 'true'
+      run: test -d node_modules/mocha && test -d node_modules/esbuild || npm ci
       shell: bash
