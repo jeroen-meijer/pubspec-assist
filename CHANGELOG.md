@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Upcoming
 
+- chore: bump vulnerable npm dependencies (js-yaml, fast-uri, undici, brace-expansion, linkify-it, serialize-javascript, diff)
 - ci: remove Open VSX publish from release pipeline (extension mirrored via Eclipse auto-publish)
 
 ## 2.4.0 - 2026-07-01
