@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Upcoming
 
+- chore: upgrade TypeScript 6, ESLint 10, yaml 2.9, fuse.js 7.5, and other npm dependencies (keep VS Code engine `^1.90.0`)
 - chore: bump vulnerable npm dependencies (js-yaml, fast-uri, undici, brace-expansion, linkify-it, serialize-javascript, diff)
 - ci: remove Open VSX publish from release pipeline (extension mirrored via Eclipse auto-publish)
 

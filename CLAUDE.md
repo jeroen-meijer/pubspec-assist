@@ -4,7 +4,7 @@ VS Code extension for adding and updating Dart/Flutter `pubspec.yaml` dependenci
 
 ## Tech Stack
 
-- TypeScript 5, ESLint 9 (flat config), Mocha 11
+- TypeScript 6, ESLint 10 (flat config), Mocha 11
 - `yaml` v2 for pubspec parsing/serialization
 - `fuse.js` for fuzzy package search
 - npm for installs, scripts, and CI
