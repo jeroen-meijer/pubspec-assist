@@ -82,7 +82,17 @@ Start with “This PR …” in one clear sentence. Add bullets or notes below o
 ## Changelog Workflow
 
 - [CHANGELOG.md](CHANGELOG.md) follows [Keep a Changelog](https://keepachangelog.com/) with a preamble and `## Upcoming` section.
-- All user-visible changes go under `## Upcoming`.
+- `## Upcoming` is the **user-facing draft for the next release**, not a commit diary.
+- Write for someone who installs the next version. Conventional prefixes are fine; the rest should read as a product note.
+- Lead with what the user can do or notice, not how it was built.
+- No implementation jargon (internal names, token ids, patch details) unless the product exposes that name.
+- One distinct surface or capability per bullet when they are separate. Do not semicolon-stack unrelated polish onto one feat.
+- Fix lines name the symptom the user sees, not the patch mechanism.
+- Simplify for end users: short, concrete, scannable.
+- **Unshipped work:** edit or merge existing Upcoming bullets. Do not add `fix(X)` under a `feat(X)` that never left Upcoming.
+- **After a release:** only then does a later bug fix get its own Upcoming line.
+- Prefer fewer, broader bullets. Skip internal-only churn unless users notice it.
+- Run `/humanize` (or match that skill) on every new or edited Upcoming bullet before you commit.
 - New entries are **prepended** at the top of the Upcoming list (above existing bullets). CI enforces this (`tool/check_changelog_pr.sh`). Nested sub-bullets (`  - `) are allowed.
 - Release branches `chore/release-*` are exempt from changelog CI.
 - On release, `tool/rewrite_changelog_for_release.sh` inserts `## X.Y.Z - YYYY-MM-DD` under `## Upcoming` and moves current bullets into that section.
