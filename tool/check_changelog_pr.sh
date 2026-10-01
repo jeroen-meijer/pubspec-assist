@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# Verify a PR prepends new bullets under ## Upcoming (see CHANGELOG workflow in CLAUDE.md).
+# Verify a PR prepends new bullets under ## Upcoming (every PR, product or docs; see CLAUDE.md).
 #
 # Usage:
 #   ./tool/check_changelog_pr.sh [<base-ref>]
