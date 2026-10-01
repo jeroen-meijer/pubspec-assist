@@ -94,6 +94,7 @@ Start with “This PR …” in one clear sentence. Add bullets or notes below o
 - **Unshipped work:** edit or merge existing Upcoming bullets. Do not add `fix(X)` under a `feat(X)` that never left Upcoming.
 - **After a release:** only then does a later bug fix get its own Upcoming line.
 - Prefer fewer, broader bullets over one line per agent session.
+- Blank line after each `##` heading and between release sections; no blank lines between consecutive bullets within a section.
 - Run `/humanize` (or match that skill) on every new or edited Upcoming bullet before you commit.
 - New entries are **prepended** at the top of the Upcoming list (above existing bullets). CI enforces this (`tool/check_changelog_pr.sh`). Nested sub-bullets (`  - `) are allowed.
 - Release branches `chore/release-*` are exempt from changelog CI.

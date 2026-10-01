@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Upcoming
 
-- docs: require every PR to update Upcoming; prefer end-user wording when the change is visible, and write what the UI does instead of soft wrappers
+- docs: require every PR to update Upcoming; prefer end-user wording when the change is visible; write what the UI does instead of soft wrappers; keep changelog bullets consecutive (no blank lines between them)
 
 ## 2.4.1 - 2026-08-13
 
